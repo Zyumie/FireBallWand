@@ -1,0 +1,8 @@
+name: FireballWand
+version: 1.0
+main: fr.zyumie.fireballwand.fireballwand
+api-version: 1.20
+commands:
+  givefirewand:
+    description: Donne un bâton qui tire des boules de feu
+    usage: /givefirewand
