@@ -22,14 +22,25 @@ public class fireballwand extends JavaPlugin implements Listener, CommandExecuto
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
-        getCommand("givefirewand").setExecutor(this);
-    }
+        getCommand("firewand").setExecutor(this);
 
+        // Kick armor
+        kick_armor kickArmor = new kick_armor(this);
+        getCommand("kickarmor").setExecutor(kickArmor);
+
+        // Freeze wand
+        freezewand freezeWand = new freezewand(this);
+        getCommand("freezewand").setExecutor((sender, command, label, args) -> {
+            if (sender instanceof Player player) freezeWand.giveWand(player);
+            return true;
+        });
+    }
+        
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return true;
         if (!player.isOp()) {
-            player.sendMessage("§cCommande réservée aux opérateurs.");
+            player.sendMessage("§cCommande réservée aux administrateurs.");
             return true;
         }
 
@@ -55,7 +66,7 @@ public class fireballwand extends JavaPlugin implements Listener, CommandExecuto
         if (meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(wandName)) {
             Fireball fireball = player.launchProjectile(Fireball.class);
             fireball.setIsIncendiary(true);
-            fireball.setYield(5F); // Puissance de l'explosion
+            fireball.setYield(50F);
         }
     }
 }

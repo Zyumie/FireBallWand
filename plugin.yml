@@ -1,8 +1,18 @@
 name: FireballWand
-version: 1.0
 main: fr.zyumie.fireballwand.fireballwand
-api-version: 1.20
+version: 1.0
+api-version: 1.21
+author: Zyumie
 commands:
-  givefirewand:
-    description: Donne un bâton qui tire des boules de feu
-    usage: /givefirewand
+  firewand:
+    description: Donne le bâton de feu
+    usage: /firewand
+  kickarmor:
+    description: Donne une armure qui kick les joueurs à 3 blocs
+    usage: /kickarmor
+  freezewand:
+    description: Donne un bâton qui freeze/unfreeze les joueurs
+    usage: /freezewand
+  unfreezewand-all:
+    description: Dégèle tous les joueurs
+    usage: /unfreezewand-all
