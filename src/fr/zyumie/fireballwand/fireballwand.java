@@ -15,47 +15,49 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.CommandExecutor;
 
-public class fireballwand extends JavaPlugin implements Listener, CommandExecutor {
+public class fireballwand implements Listener, CommandExecutor {
 
-    private final String wandName = "§cBâton de Feu";
-
-    @Override
-    public void onEnable() {
-        getServer().getPluginManager().registerEvents(this, this);
-        getCommand("givefirewand").setExecutor(this);
+	private final String wandName = "§cBâton de Feu";
+    private final Main plugin;
+    
+    public fireballwand(Main plugin) {
+        this.plugin = plugin;
+        
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) return true;
-        if (!player.isOp()) {
-            player.sendMessage("§cCommande réservée aux opérateurs.");
-            return true;
-        }
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!(sender instanceof Player player))
+			return true;
+		if (!player.isOp()) {
+			player.sendMessage("§cCommande réservée aux administrateurs.");
+			return true;
+		}
 
-        ItemStack wand = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta meta = wand.getItemMeta();
-        meta.setDisplayName(wandName);
-        meta.addEnchant(Enchantment.FIRE_ASPECT, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        wand.setItemMeta(meta);
+		ItemStack wand = new ItemStack(Material.BLAZE_ROD);
+		ItemMeta meta = wand.getItemMeta();
+		meta.setDisplayName(wandName);
+		meta.addEnchant(Enchantment.FIRE_ASPECT, 1, true);
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		wand.setItemMeta(meta);
 
-        player.getInventory().addItem(wand);
-        player.sendMessage("§aBâton de Feu ajouté à ton inventaire.");
-        return true;
-    }
+		player.getInventory().addItem(wand);
+		player.sendMessage("§aBâton de Feu ajouté à ton inventaire.");
+		return true;
+	}
 
-    @EventHandler
-    public void onPlayerUse(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() != Material.BLAZE_ROD) return;
+	@EventHandler
+	public void onPlayerUse(PlayerInteractEvent event) {
+		Player player = event.getPlayer();
+		ItemStack item = player.getInventory().getItemInMainHand();
+		if (item.getType() != Material.BLAZE_ROD)
+			return;
 
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(wandName)) {
-            Fireball fireball = player.launchProjectile(Fireball.class);
-            fireball.setIsIncendiary(true);
-            fireball.setYield(5F); // Puissance de l'explosion
-        }
-    }
+		ItemMeta meta = item.getItemMeta();
+		if (meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(wandName)) {
+			Fireball fireball = player.launchProjectile(Fireball.class);
+			fireball.setIsIncendiary(true);
+			fireball.setYield(50F);
+		}
+	}
 }
