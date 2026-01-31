@@ -1,4 +1,4 @@
-package fr.zyumie.fireballwand;
+package fr.zyumie.Commandes;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

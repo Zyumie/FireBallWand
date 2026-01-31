@@ -1,6 +1,6 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 1.0
+version: 2.9
 api-version: 1.21
 author: Zyumie
 commands:
@@ -20,3 +20,15 @@ commands:
     description: Dégèle tous les joueurs
     permission: fireballwand.unfreezewand
     usage: /unfreezewand-all
+  cheatsword:
+    description: Donne une Epée Cheat
+    permission: fireballwand.cheatsword
+    usage: /cheatsword
+  diamond_armorcheat:
+     description: Donne une Armure en Diamant Cheat
+     permission: fireballwand.diamond_armorcheat
+     usage: /diamond-armorcheat
+  netherite_armorcheat:
+     description: Donne une Armures en Netherite Cheat
+     permission: fireballwand.netherite_armorcheat
+     usage: /netherite-armorcheat
