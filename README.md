@@ -9,7 +9,7 @@
 
 ## 🔥 FireWandBall - Plugin Minecraft
 
-### 📌 Version 2.9.1
+### 📌 Version 2.9.3
 - Plugin : **FireWandBall**
 - Auteur : Zyumie (aka AyanoBrz)
 - Spécialité : Donne accès à des **items fun et cheat** destinés aux OP/Admins pour interagir avec les joueurs.
@@ -39,6 +39,11 @@
   - enchantements extrêmes
   - attributs custom
   - unbreakable
+
+  ### 📚 Système Admin
+
+  - Message de Bienvenue ( Configurable )
+  - Fix du Format du Message
 
 ---
 
