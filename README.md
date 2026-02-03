@@ -9,7 +9,7 @@
 
 ## 🔥 FireWandBall - Plugin Minecraft
 
-### 📌 Version 2.9.0
+### 📌 Version 2.9.1
 - Plugin : **FireWandBall**
 - Auteur : Zyumie (aka AyanoBrz)
 - Spécialité : Donne accès à des **items fun et cheat** destinés aux OP/Admins pour interagir avec les joueurs.
@@ -31,7 +31,10 @@
 - **⚔️ Cheat Sword**  
   Épée surpuissante avec enchantements et attributs abusés.
 
-- **💎 Cheat Armor**  
+- **🔨 Cheat Mace**  
+  Mace surpuissante avec enchantements abusés.
+
+- **💎 Cheat Armor**
   Sets complets **diamant et netherite** :
   - enchantements extrêmes
   - attributs custom
@@ -55,6 +58,7 @@
 | `/kickarmor` | Donne la KickArmor |
 | `/freezewand` | Freeze un joueur en survie |
 | `/cheatsword` | Donne l’épée cheat |
+| `/cheatmace` | Donne la mace cheat |
 | `/diamond-armorcheat` | Donne l’armure cheat diamant |
 | `/netherite-armorcheat` | Donne l’armure cheat netherite |
 
