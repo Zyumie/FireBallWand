@@ -1,6 +1,6 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 2.9
+version: 2.9.1
 api-version: 1.21
 author: Zyumie
 commands:
@@ -24,6 +24,10 @@ commands:
     description: Donne une Epée Cheat
     permission: fireballwand.cheatsword
     usage: /cheatsword
+  cheatmace: 
+    description: Donne une Mace Cheat
+    permission: fireballwand.cheatmace
+    usage: /cheatmace
   diamond_armorcheat:
      description: Donne une Armure en Diamant Cheat
      permission: fireballwand.diamond_armorcheat

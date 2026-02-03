@@ -46,7 +46,6 @@ public class netherite_armorcheat implements CommandExecutor {
 
 	        // Lore
 	        meta.setLore(List.of(
-	        	    "",
 	        	    ChatColor.RED + "∞ Cheat",
 	        	    ChatColor.GOLD + "∞ Aura",
 	        	    ChatColor.LIGHT_PURPLE + "∞ Skills"
