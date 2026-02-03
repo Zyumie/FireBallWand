@@ -11,6 +11,8 @@ import fr.zyumie.Commandes.Cheats.cheatmace;
 import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
+import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Listener.VersionManager;
 
 import org.bukkit.command.CommandExecutor;
 
@@ -18,11 +20,9 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 
 	@Override
 	public void onEnable() {
-		getServer().getPluginManager().registerEvents(this, this);
 		
 		// FireballWand
 	    fireballwand fireballwand = new fireballwand(this);
-	    getServer().getPluginManager().registerEvents(fireballwand, this);
 	    getCommand("firewand").setExecutor(fireballwand);
 
 		// Kick armor
@@ -38,10 +38,18 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 			return true;
 		});
 		
-		
+		// Listener
+		getServer().getPluginManager().registerEvents(this, this);
+	    getServer().getPluginManager().registerEvents(fireballwand, this);
+	    
+        getServer().getPluginManager().registerEvents(new VersionManager(this), this);
+        getServer().getPluginManager().registerEvents(new ChatManager(this), this);
+        
+        
 		// Give une Armes Cheater
 		getCommand("cheatsword").setExecutor(new cheatsword());
 		getCommand("cheatmace").setExecutor(new cheatmace());	
+		
 		
 		// Give une Armures Cheater
 		getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat());	

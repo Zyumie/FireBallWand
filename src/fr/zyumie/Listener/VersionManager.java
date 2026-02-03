@@ -1,14 +1,24 @@
-package fr.zyumie.fireballwand;
+package fr.zyumie.Listener;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import fr.zyumie.fireballwand.Main;
+
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
-public class VersionManager {
+public class VersionManager implements Listener {
 
+    private final Main plugin;
+    
+    public VersionManager(Main plugin) {
+        this.plugin = plugin;
+    }
+    
     private static final String PROJECT_ID = "fireballwand"; // remplacer par ton project Modrinth
 
     public static String getLatestVersion() {
