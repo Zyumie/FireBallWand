@@ -40,7 +40,7 @@
   - attributs custom
   - unbreakable
 
-  ### 📚 Système Admin
+### 📚 Système Admin
 
   - Message de Bienvenue ( Configurable )
   - Fix du Format du Message
