@@ -21,6 +21,9 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 	@Override
 	public void onEnable() {
 		
+		// CheckVersion
+		VersionManager.check(this);
+		
 		// FireballWand
 	    fireballwand fireballwand = new fireballwand(this);
 	    getCommand("firewand").setExecutor(fireballwand);
@@ -41,9 +44,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		// Listener
 		getServer().getPluginManager().registerEvents(this, this);
 	    getServer().getPluginManager().registerEvents(fireballwand, this);
-	    
-        getServer().getPluginManager().registerEvents(new VersionManager(this), this);
-        getServer().getPluginManager().registerEvents(new ChatManager(this), this);
+	    getServer().getPluginManager().registerEvents(new ChatManager(this), this);
         
         
 		// Give une Armes Cheater
