@@ -25,6 +25,15 @@ public class netherite_armorcheat implements CommandExecutor {
 	    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
 	        if (!(sender instanceof Player player)) return true;
+	        
+	        
+			// Que celui qui a la Perm ⬇️ peut ce la Give
+			if (!player.hasPermission("fireballwand.netherite_armorcheat")) {
+			    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+			    return true;
+			}
+			
+	        
 
 	        player.getInventory().addItem(createArmor(Material.NETHERITE_HELMET));
 	        player.getInventory().addItem(createArmor(Material.NETHERITE_CHESTPLATE));

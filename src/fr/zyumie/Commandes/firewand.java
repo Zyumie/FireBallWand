@@ -17,20 +17,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.CommandExecutor;
 
-public class fireballwand implements Listener, CommandExecutor {
+public class firewand implements Listener, CommandExecutor {
 
 	private final String wandName = "§cBâton de Feu";
-    public fireballwand(Main plugin) {
+    public firewand(Main plugin) {
         
     }
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		
 		if (!(sender instanceof Player player))
 			return true;
-		if (!player.isOp()) {
-			player.sendMessage("§cCommande réservée aux administrateurs.");
-			return true;
+		
+		// Que celui qui a la Perm ⬇️ peut ce la Give
+		if (!player.hasPermission("fireballwand.firewand")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return true;
 		}
 
 		ItemStack wand = new ItemStack(Material.BLAZE_ROD);

@@ -1,39 +1,72 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 2.9.4
+version: 2.9.6
 api-version: 1.21
 author: Zyumie
 softdepend: [LuckPerms]
+
 commands:
   firewand:
     description: Donne le bâton de feu
-    permission: fireballwand.firewand
     usage: /firewand
+
   kickarmor:
     description: Donne une armure qui kick les joueurs à 3 blocs
-    permission: fireballwand.kickarmor
     usage: /kickarmor
+
   freezewand:
     description: Donne un bâton qui freeze/unfreeze les joueurs
-    permission: fireballwand.freezewand
     usage: /freezewand
+
   unfreezewand-all:
     description: Dégèle tous les joueurs
-    permission: fireballwand.unfreezewand
     usage: /unfreezewand-all
+
   cheatsword:
-    description: Donne une Epée Cheat
-    permission: fireballwand.cheatsword
+    description: Donne une épée Cheat
     usage: /cheatsword
-  cheatmace: 
+
+  cheatmace:
     description: Donne une Mace Cheat
-    permission: fireballwand.cheatmace
     usage: /cheatmace
+
   diamond_armorcheat:
-     description: Donne une Armure en Diamant Cheat
-     permission: fireballwand.diamond_armorcheat
-     usage: /diamond-armorcheat
+    description: Donne une armure en Diamant Cheat
+    usage: /diamond-armorcheat
+
   netherite_armorcheat:
-     description: Donne une Armures en Netherite Cheat
-     permission: fireballwand.netherite_armorcheat
-     usage: /netherite-armorcheat
+    description: Donne une armure en Netherite Cheat
+    usage: /netherite-armorcheat
+
+permissions:
+  fireballwand.firewand:
+    description: Permet de give la FireWand
+    default: op
+
+  fireballwand.kickarmor:
+    description: Permet de give la KickArmor
+    default: op
+
+  fireballwand.freezewand:
+    description: Permet de give la FreezeWand
+    default: op
+
+  fireballwand.unfreezewand:
+    description: Permet de dégeler tous les joueurs
+    default: op
+
+  fireballwand.cheatsword:
+    description: Give une épée Cheat
+    default: op
+
+  fireballwand.cheatmace:
+    description: Give une Mace Cheat
+    default: op
+
+  fireballwand.diamond_armorcheat:
+    description: Give une armure Diamant Cheat
+    default: op
+
+  fireballwand.netherite_armorcheat:
+    description: Give une armure Netherite Cheat
+    default: op

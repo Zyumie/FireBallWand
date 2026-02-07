@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import fr.zyumie.Commandes.fireballwand;
+import fr.zyumie.Commandes.firewand;
 import fr.zyumie.Commandes.freezewand;
 import fr.zyumie.Commandes.kick_armor;
 import fr.zyumie.Commandes.Cheats.cheatmace;
@@ -25,8 +25,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 	public void onEnable() {
 		
 		// FireballWand
-	    fireballwand fireballwand = new fireballwand(this);
-	    getCommand("firewand").setExecutor(fireballwand);
+	    firewand firewand = new firewand(this);
+	    getCommand("firewand").setExecutor(firewand);
 
 		// Kick armor
 		kick_armor kickArmor = new kick_armor(this);
@@ -43,7 +43,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		
 		// Listener
 		getServer().getPluginManager().registerEvents(this, this);
-	    getServer().getPluginManager().registerEvents(fireballwand, this);
+	    getServer().getPluginManager().registerEvents(firewand, this);
 	    getServer().getPluginManager().registerEvents(new ChatManager(this), this);
 	    
 	    

@@ -24,6 +24,15 @@ public class cheatsword implements CommandExecutor {
 		if (!(sender instanceof Player player))
 			return true;
 		
+		
+		// Que celui qui a la Perm ⬇️ peut ce la Give
+		if (!player.hasPermission("fireballwand.cheatsword")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return true;
+		}
+		
+		
+		
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
 

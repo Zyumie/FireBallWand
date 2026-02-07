@@ -33,11 +33,15 @@ public class freezewand implements Listener, CommandExecutor {
 	}
 
 	public void giveWand(Player player) {
-		if (!player.isOp()) {
-			player.sendMessage("§cCommande réservée aux administrateurs.");
-			return;
+		
+		
+		// Que celui qui a la Perm ⬇️ peut ce la Give
+		if (!player.hasPermission("fireballwand.freewand")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return;
 		}
 
+		
 		ItemStack wand = new ItemStack(Material.STONE_SWORD);
 		ItemMeta meta = wand.getItemMeta();
 		meta.setDisplayName("§bBâton de Glace");

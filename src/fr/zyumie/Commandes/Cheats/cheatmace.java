@@ -24,6 +24,14 @@ public class cheatmace implements CommandExecutor {
 		if (!(sender instanceof Player player))
 			return true;
 		
+		
+		// Que celui qui a la Perm ⬇️ peut ce la Give
+		if (!player.hasPermission("fireballwand.cheatmace")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return true;
+		}
+		
+		
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
 

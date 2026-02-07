@@ -21,8 +21,10 @@ public class kick_armor implements Listener, CommandExecutor {
 	private final NamespacedKey armorKey;
 
 	public kick_armor(JavaPlugin plugin) {
+		
 		this.armorKey = new NamespacedKey(plugin, "armor_id");
 		Bukkit.getPluginManager().registerEvents(this, plugin);
+	
 	}
 
 	@EventHandler
@@ -60,14 +62,20 @@ public class kick_armor implements Listener, CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		
+		
 		if (!(sender instanceof Player player)) {
 			sender.sendMessage("Seul un joueur peut utiliser cette commande.");
 			return true;
 		}
-		if (!player.isOp()) {
-			player.sendMessage("§cCommande réservée aux administrateurs.");
-			return true;
+		
+		
+		// Que celui qui a la Perm ⬇️ peut ce la Give
+		if (!player.hasPermission("fireballwand.kickarmor")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return true;
 		}
+		
 
 		ItemStack chest = new ItemStack(Material.DIAMOND_CHESTPLATE);
 		ItemMeta meta = chest.getItemMeta();
