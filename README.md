@@ -44,6 +44,7 @@
 
   - Message de Bienvenue ( Configurable )
   - Fix du Format du Message
+    - Compatible with LuckPerms
 
 ---
 
