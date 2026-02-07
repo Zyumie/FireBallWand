@@ -1,4 +1,4 @@
-package fr.zyumie.Listener;
+package fr.zyumie.SoftDepend;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;

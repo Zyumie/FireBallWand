@@ -12,8 +12,8 @@ import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
 import fr.zyumie.Listener.ChatManager;
-import fr.zyumie.Listener.LuckPermsHook;
 import fr.zyumie.Listener.VersionManager;
+import fr.zyumie.SoftDepend.LuckPermsHook;
 
 import org.bukkit.command.CommandExecutor;
 
