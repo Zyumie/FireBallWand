@@ -12,15 +12,18 @@ import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
 import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Listener.LuckPermsHook;
 import fr.zyumie.Listener.VersionManager;
 
 import org.bukkit.command.CommandExecutor;
 
 public class Main extends JavaPlugin implements Listener, CommandExecutor {
 
+	private LuckPermsHook luckPermsHook;
+	
 	@Override
 	public void onEnable() {
-			
+		
 		// FireballWand
 	    fireballwand fireballwand = new fireballwand(this);
 	    getCommand("firewand").setExecutor(fireballwand);
@@ -49,6 +52,15 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		VersionManager.init(this);
 		getServer().getPluginManager().registerEvents(new VersionManager(), this);
         
+		
+		// LuckPerm's ( Vérifie si il est la ou non )
+	    if (getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+	        luckPermsHook = new LuckPermsHook();
+	        getLogger().info("LuckPerms détecté, hook activé.");
+	    } else {
+	        getLogger().info("LuckPerms non détecté.");
+	    }
+		
         
 		// Give une Armes Cheater
 		getCommand("cheatsword").setExecutor(new cheatsword());
@@ -61,4 +73,11 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 			
 
 	}
+	
+	
+	public LuckPermsHook getLuckPermsHook() {
+	    return luckPermsHook;
+	}
+
+	
 }
