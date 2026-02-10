@@ -38,19 +38,24 @@ public class firewand implements Listener, CommandExecutor {
 
 		ItemStack wand = new ItemStack(Material.BLAZE_ROD);
 		ItemMeta meta = wand.getItemMeta();
+		
 		meta.setDisplayName(wandName);
 		meta.addEnchant(Enchantment.FIRE_ASPECT, 1, true);
 		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		
 		wand.setItemMeta(meta);
 
 		player.getInventory().addItem(wand);
 		player.sendMessage("§aBâton de Feu ajouté à ton inventaire.");
+		
 		return true;
 	}
 
 	@EventHandler
 	public void onPlayerUse(PlayerInteractEvent event) {
+		
 		Player player = event.getPlayer();
+		
 		ItemStack item = player.getInventory().getItemInMainHand();
 		if (item.getType() != Material.BLAZE_ROD)
 			return;

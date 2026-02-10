@@ -1,6 +1,5 @@
 package fr.zyumie.fireballwand;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,13 +32,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		getCommand("kickarmor").setExecutor(kickArmor);
 
 		// Freeze wand
-		freezewand freezeWand = new freezewand(this);
-		getCommand("freezewand").setExecutor((sender, command, label, args) -> {
-			if (sender instanceof Player player)
-				freezeWand.giveWand(player);
-		
-			return true;
-		});
+		freezewand freezewand = new freezewand(this);
+	    getCommand("freezewand").setExecutor(freezewand);
 		
 		// Listener
 		getServer().getPluginManager().registerEvents(this, this);
@@ -70,7 +64,45 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		// Give une Armures Cheater
 		getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat());	
 		getCommand("netherite_armorcheat").setExecutor(new netherite_armorcheat());	
-			
+
+		
+		logStartup();
+		
+	}
+	
+	
+	public void logStartup() {
+		
+	    String RED    = "\u001B[31m";
+	    String ORANGE = "\u001B[38;5;208m"; // orange ANSI 256 couleurs
+	    String YELLOW = "\u001B[33m";
+	    String RESET  = "\u001B[0m";
+
+	    getLogger().info(RED + "                                 .''.");
+	    getLogger().info(ORANGE + "       .''.             *''*    :_\\/_:     . ");
+	    getLogger().info(YELLOW + "      :_\\/_:   .    .:.*_\\/_*   : /\\ :  .'.:.'." );
+	    getLogger().info(RED + "  .''.: /\\ : _\\(/_  ':'* /\\ *  : '..'.  -=:o:=-");
+	    getLogger().info(ORANGE + " :_\\/_:'.:::. /)\\*''*  .|.* '.\\'/.'_\\(/_'.':'.'");
+	    getLogger().info(YELLOW + " : /\\ : :::::  '*_\\/_* | |  -= o =- /)\\    '  *");
+	    getLogger().info(RED + " '..'  ':::'   * /\\ * |'|  .'/.\'\\.  '._____");
+	    getLogger().info(ORANGE + "      *        __*..* |  |     :      |.   |' .---\"|");
+	    getLogger().info(YELLOW + "       _*   .-'   '-. |  |     .--'|  ||   | _|    |");
+	    getLogger().info(RED + "    .-'|  _.|  |    ||   '-__  |   |  |    ||      |");
+	    getLogger().info(ORANGE + "    |' | |.    |    ||       | |   |  |    ||      |");
+	    getLogger().info(YELLOW + " ___|  '-'     '    \"\"       '-'   '-.'    '`      |____");
+	    getLogger().info(RED + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + RESET);
+	    
+	    getLogger().info(YELLOW + "🔥 FireBallWand v" + getDescription().getVersion() + " activé !" + RESET);
+	    
+	}
+
+	
+	@Override
+	public void onDisable() {
+
+	    getLogger().info("════════════════════════════════════");
+	    getLogger().info("🔥 §cFireBallWand désactivé... :(");
+	    getLogger().info("════════════════════════════════════");
 
 	}
 	

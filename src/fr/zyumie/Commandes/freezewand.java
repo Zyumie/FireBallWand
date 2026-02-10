@@ -14,7 +14,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -31,74 +30,114 @@ public class freezewand implements Listener, CommandExecutor {
 		this.wandKey = new NamespacedKey(plugin, "freeze_wand");
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
-
-	public void giveWand(Player player) {
-		
-		
-		// Que celui qui a la Perm ⬇️ peut ce la Give
-		if (!player.hasPermission("fireballwand.freewand")) {
-		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
-		    return;
-		}
-
-		
-		ItemStack wand = new ItemStack(Material.STONE_SWORD);
-		ItemMeta meta = wand.getItemMeta();
-		meta.setDisplayName("§bBâton de Glace");
-		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		meta.getPersistentDataContainer().set(wandKey, PersistentDataType.STRING, "FREEZE_WAND");
-		wand.setItemMeta(meta);
-
-		player.getInventory().addItem(wand);
-		player.sendMessage("§aTu as reçu le Bâton de Glace !");
-	}
+	
+	
+    /* ================== COMMAND ================== */
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player player))
-			return true;
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] arg) {
+		
+		if (!(sender instanceof Player player)) return true;
+		
+		
+	    // /unfreezewand-all
+	    if (command.getName().equalsIgnoreCase("unfreezewand-all")) {
+		
+		if (!player.hasPermission("fireballwand.unfreezewand")) {
+		    player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+		    return true;
+		}		
+		
+        frozenPlayers.clear();
+        Bukkit.broadcastMessage("§b❄ Tous les joueurs ont été dégelés !");
+        return true;
+    }
+		
+		
+		// Vérifie la Perm
+	    if (!player.hasPermission("fireballwand.freezewand")) {
+	        player.sendMessage("§cTu n’as pas la permission d’utiliser cet item.");
+	        return true;
+	    }
+	    
+	    // Donne la FreezeWand au joueur
 		giveWand(player);
 		return true;
 	}
+	
+	
+	public void giveWand(Player player) {
+		
+		ItemStack wand = new ItemStack(Material.STONE_SWORD);
+		ItemMeta meta = wand.getItemMeta();
+		
+		meta.setDisplayName("§bBâton de Glace");
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		meta.getPersistentDataContainer().set(wandKey, PersistentDataType.STRING, "FREEZE_WAND");
+		
+		wand.setItemMeta(meta);
+		
+		player.getInventory().addItem(wand);
+		player.sendMessage("§aTu as reçu le Bâton de Glace !");
+		
+	}
+	
+	
+    /* ================== EVENTS ================== */
+	
 
 	@EventHandler
-	public void onPlayerHit(EntityDamageByEntityEvent event) {
-		if (!(event.getDamager() instanceof Player damager))
-			return;
-		if (!(event.getEntity() instanceof Player target))
-			return;
+	public void onHit(EntityDamageByEntityEvent event) {
+		
+		if (!(event.getDamager() instanceof Player damager)) return;
+		if (!(event.getEntity() instanceof Player target)) return;
 
-		ItemStack item = damager.getInventory().getItemInMainHand();
-		if (item.getType() != Material.STONE_SWORD)
-			return;
+		
+	    // OP immunisé
+	    if (target.isOp()) {
+	        damager.sendMessage("§c❌ Impossible de geler un OP.");
+	        return;
+	    }
+		
+		
+        if (!isFreezeWand(damager.getInventory().getItemInMainHand())) return;
+        event.setCancelled(true);
+        
+        
+        UUID uuid = target.getUniqueId();
 
-		ItemMeta meta = item.getItemMeta();
-		if (meta == null)
-			return;
-
-		PersistentDataContainer data = meta.getPersistentDataContainer();
-		String id = data.get(wandKey, PersistentDataType.STRING);
-		if (id == null || !id.equals("FREEZE_WAND"))
-			return;
-
-		event.setCancelled(true);
-
-		if (frozenPlayers.contains(target.getUniqueId())) {
-			frozenPlayers.remove(target.getUniqueId());
-			target.sendMessage("§aTu es dégelé !");
-			damager.sendMessage("§bTu as dégelé §e" + target.getName());
-		} else {
-			frozenPlayers.add(target.getUniqueId());
-			target.sendMessage("§cTu es gelé !");
-			damager.sendMessage("§bTu as gelé §e" + target.getName());
-		}
+        if (frozenPlayers.remove(uuid)) {
+            target.sendMessage("§aTu es dégelé.");
+            damager.sendMessage("§bJoueur dégelé.");
+        } else {
+            frozenPlayers.add(uuid);
+            target.sendMessage("§cTu es gelé.");
+            damager.sendMessage("§bJoueur gelé.");
+        }
 	}
+	
 
 	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent event) {
-		Player player = event.getPlayer();
-		if (frozenPlayers.contains(player.getUniqueId())) {
-			event.setTo(event.getFrom());
-		}
-	}
+	public void onMove(PlayerMoveEvent event) {
+		
+        if (!frozenPlayers.contains(event.getPlayer().getUniqueId())) return;
+
+        if (event.getFrom().getX() != event.getTo().getX()
+                || event.getFrom().getZ() != event.getTo().getZ()) {
+            event.setCancelled(true);
+        }   
+    }
+	
+	
+    /* ================== UTILS ================== */
+	
+	
+    private boolean isFreezeWand(ItemStack item) {
+        if (item == null || item.getType() != Material.STONE_SWORD) return false;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+
+        return meta.getPersistentDataContainer().has(wandKey, PersistentDataType.BYTE);
+    }
+	
 }
