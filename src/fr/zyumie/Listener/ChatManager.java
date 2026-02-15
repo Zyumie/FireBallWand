@@ -3,6 +3,10 @@ package fr.zyumie.Listener;
 import fr.zyumie.fireballwand.Main;
 
 import net.md_5.bungee.api.ChatColor;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,25 +20,27 @@ public class ChatManager implements Listener {
     public ChatManager(Main plugin) {
         this.plugin = plugin;
     }
-	
     
-    // Convertit un texte contenant des codes hex (#RRGGBB) en ChatColor utilisable
-    public static String translateHexColors(String text) {
-    	
-        // Exemple : "&fHello #FF0000World" devient "Hello" en blanc et "World" en rouge
-        final String HEX_PATTERN = "#[a-fA-F0-9]{6}";
-        
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(HEX_PATTERN);
-        java.util.regex.Matcher matcher = pattern.matcher(text);
+    
 
+    // Pattern HEX (&?#RRGGBB)
+    private static final Pattern HEX_PATTERN = Pattern.compile("(&)?#([a-fA-F0-9]{6})");
+
+    // Traduction & + HEX
+    public static String colorize(String text) {
+        if (text == null) return "";
+
+        Matcher matcher = HEX_PATTERN.matcher(text);
         StringBuffer buffer = new StringBuffer();
-        
+
         while (matcher.find()) {
-            String hexColor = matcher.group();
-            matcher.appendReplacement(buffer, ChatColor.of(hexColor) + "");
+            matcher.appendReplacement(
+                    buffer,
+                    ChatColor.of("#" + matcher.group(2)).toString()
+            );
         }
-        
         matcher.appendTail(buffer);
+
         return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
     
@@ -52,21 +58,17 @@ public class ChatManager implements Listener {
         
 
         if (plugin.getLuckPermsHook() != null) {
-            prefix = plugin.getLuckPermsHook().getPrefix(event.getPlayer());
-            suffix = plugin.getLuckPermsHook().getSuffix(event.getPlayer());
+            prefix = colorize(plugin.getLuckPermsHook().getPrefix(player));
+            suffix = colorize(plugin.getLuckPermsHook().getSuffix(player));
+        }         
             
-            
-            // Traduire les codes hex en couleur RGB
-            prefix = translateHexColors(prefix);
-            suffix = translateHexColors(suffix);
-        }
-        
-        
-        // Met le format du Chat
+
+        // Message joueur
+        event.setMessage(colorize(event.getMessage()));
+
+        // Format final
         event.setFormat(
-            ChatColor.translateAlternateColorCodes('&',
-                prefix + player.getName() + suffix + " : " + "%2$s"
-            )
+                colorize(prefix + player.getName() + suffix + " &7: &f%2$s")
         );
     }
 

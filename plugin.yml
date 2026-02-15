@@ -1,6 +1,6 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 2.9.7
+version: 2.9.7.1
 api-version: 1.21
 author: Zyumie
 softdepend: [LuckPerms]
