@@ -2,7 +2,7 @@ package fr.zyumie.Listener;
 
 import fr.zyumie.fireballwand.Main;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +17,28 @@ public class ChatManager implements Listener {
         this.plugin = plugin;
     }
 	
+    
+    // Convertit un texte contenant des codes hex (#RRGGBB) en ChatColor utilisable
+    public static String translateHexColors(String text) {
+    	
+        // Exemple : "&fHello #FF0000World" devient "Hello" en blanc et "World" en rouge
+        final String HEX_PATTERN = "#[a-fA-F0-9]{6}";
+        
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(HEX_PATTERN);
+        java.util.regex.Matcher matcher = pattern.matcher(text);
+
+        StringBuffer buffer = new StringBuffer();
+        
+        while (matcher.find()) {
+            String hexColor = matcher.group();
+            matcher.appendReplacement(buffer, ChatColor.of(hexColor) + "");
+        }
+        
+        matcher.appendTail(buffer);
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
+    
+    
     // Format du Chat
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
@@ -31,6 +53,12 @@ public class ChatManager implements Listener {
 
         if (plugin.getLuckPermsHook() != null) {
             prefix = plugin.getLuckPermsHook().getPrefix(event.getPlayer());
+            suffix = plugin.getLuckPermsHook().getSuffix(event.getPlayer());
+            
+            
+            // Traduire les codes hex en couleur RGB
+            prefix = translateHexColors(prefix);
+            suffix = translateHexColors(suffix);
         }
         
         
