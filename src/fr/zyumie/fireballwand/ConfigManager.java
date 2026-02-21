@@ -1,8 +1,9 @@
 package fr.zyumie.fireballwand;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.Listener;
 
-public class ConfigManager {
+public class ConfigManager implements Listener {
 
     private final Main plugin;
 

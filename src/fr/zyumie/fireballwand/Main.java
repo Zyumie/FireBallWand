@@ -38,6 +38,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		// Listener
 		getServer().getPluginManager().registerEvents(this, this);
 	    getServer().getPluginManager().registerEvents(firewand, this);
+		getServer().getPluginManager().registerEvents(new ConfigManager(this), this);
 	    getServer().getPluginManager().registerEvents(new ChatManager(this), this);
 	    
 	    
