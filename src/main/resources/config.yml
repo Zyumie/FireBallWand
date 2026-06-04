@@ -1,0 +1,15 @@
+#
+#             ╔══════════════════════════════════════════════╗
+#             ║          FireBallWand - Config               ║
+#             ║                by Zyumie                     ║
+#             ║  My Discord : https://discord.gg/dyccdcXMJn  ║
+#             ╚══════════════════════════════════════════════╝
+#
+
+welcome-message: true
+welcome:
+  msg: "&aBienvenue &f%player% &asur le Serveur !"
+
+vanish:
+  # Niveau maximum scanné lors de la résolution des permissions.
+  max-level: 10

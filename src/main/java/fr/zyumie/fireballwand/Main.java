@@ -13,12 +13,14 @@ import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
 import fr.zyumie.Listener.ChatManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.LuckPermsHook;
+import fr.zyumie.Vanish.*;
 
 import org.bukkit.command.CommandExecutor;
 
 public class Main extends JavaPlugin implements Listener, CommandExecutor {
 
 	private LuckPermsHook luckPermsHook;
+	private VanishManager vanishManager;
 	
 	@Override
 	public void onEnable() {
@@ -66,7 +68,14 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat());	
 		getCommand("netherite_armorcheat").setExecutor(new netherite_armorcheat());	
 
-		
+
+		// Vanish
+		vanishManager = new VanishManager(this);
+		getCommand("vanish").setExecutor(new VanishCommand(this));
+		getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+		getServer().getPluginManager().registerEvents(new ServerListListener(this), this);
+
+
 		logStartup();
 		
 	}
@@ -106,11 +115,11 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 	    getLogger().info("════════════════════════════════════");
 
 	}
-	
-	
+
+	public VanishManager getVanishManager() { return vanishManager; }
+
 	public LuckPermsHook getLuckPermsHook() {
 	    return luckPermsHook;
 	}
 
-	
 }
