@@ -7,108 +7,137 @@
 
 ---
 
-## 🔥 FireWandBall - Plugin Minecraft
+## 🔥 FireBallWand — Plugin Minecraft
 
-### 📌 Version 3.0.0
-- Plugin : **FireWandBall**  
-- Auteur : Zyumie (aka AyanoBrz)  
+### 📌 Version 3.5.0
+
+- Plugin : **FireBallWand**
+- Auteur : Zyumie (aka AyanoBrz)
 - Spécialité : Donne accès à des **items fun et cheat** destinés aux OP/Admins pour interagir avec les joueurs.
 
 ---
 
 ### ✨ Fonctionnalités
 
-- **🔥 FireWand**  
-  Bâton tirant des fireballs à forte puissance.
+- **🔥 FireWand**
+  Bâton tirant des fireballs à forte puissance *(puissance et incendie configurables)*.
 
-- **👢 KickArmor**  
-  Armure qui repousse / kick automatiquement les joueurs autour du porteur  
-  *(les OP ne sont pas affectés)*.
+- **👢 KickArmor**
+  Armure qui repousse / kick automatiquement les joueurs autour du porteur
+  *(rayon configurable — les OP ne sont pas affectés)*.
 
-- **❄️ FreezeWand**  
-  Épée qui freeze les joueurs en **mode Survie**.
+- **❄️ FreezeWand**
+  Épée qui freeze les joueurs en **mode Survie** *(messages configurables)*.
 
-- **⚔️ Cheat Sword**  
+- **⚔️ Cheat Sword**
   Épée surpuissante avec enchantements et attributs abusés.
 
-- **🔨 Cheat Mace**  
+- **🔨 Cheat Mace**
   Mace surpuissante avec enchantements abusés.
 
-- **💎 Cheat Armor**  
-  Sets complets **diamant et netherite** :  
-  - enchantements extrêmes  
-  - attributs custom  
+- **💎 Cheat Armor**
+  Sets complets **diamant et netherite** :
+  - enchantements extrêmes
+  - attributs custom
   - unbreakable
 
 - **👻 Vanish Hiérarchique**
   Système de vanish avancé avec gestion des grades :
   - invisible aux joueurs normaux
   - compatible LuckPerms
-  - possibilité de vanish un autre joueur
+  - possibilité de vanisher un autre joueur (`/vanish <joueur>`)
   - les staffs supérieurs voient les vanishés des grades inférieurs
   - les staffs inférieurs ne voient pas les vanishés des grades supérieurs
+  - **action bar** permanente indiquant l'état vanish
+  - **double-sneak** pour basculer en mode spectateur (et retour)
+  - messages de join/quit supprimés automatiquement
 
 ---
 
 ### 📚 Système Admin
 
-- Message de Bienvenue (configurable)  
-- Fix du format du chat  
-- Système de Vanish hiérarchique
-- Compatibilité LuckPerms
+- Message de bienvenue (configurable, affiché à la première connexion)
+- Format du chat entièrement personnalisable
+- Couleurs dans le chat par permission (`&codes` et `&#HEX`)
+- Compatibilité **LuckPerms** (préfixes, suffixes)
+- Compatibilité **ItemsAdder** (glyphes/images dans le chat — soft-depend)
+- Système de vanish hiérarchique par niveau
 
 ---
 
 ### 🔧 Installation
 
-1. Installer un serveur compatible **PaperMC ou Purpur** (1.20+ recommandé).  
-2. Télécharger `FireWandBall.jar` et le placer dans le dossier `plugins/`.  
+1. Installer un serveur compatible **PaperMC ou Purpur** (1.21+ recommandé).
+2. Télécharger `FireBallWand.jar` et le placer dans le dossier `plugins/`.
 3. Redémarrer le serveur.
+4. *(Optionnel)* Installer **LuckPerms** et/ou **ItemsAdder** pour les fonctionnalités avancées de chat.
 
 ---
 
 ### 🎮 Commandes
 
-| Commande | Description |
-|----------|------------|
-| `/firewand` | Donne la FireWand |
-| `/kickarmor` | Donne la KickArmor |
-| `/freezewand` | Freeze un joueur en survie |
-| `/cheatsword` | Donne l’épée cheat |
-| `/cheatmace` | Donne la mace cheat |
-| `/diamond-armorcheat` | Donne l’armure cheat diamant |
-| `/netherite-armorcheat` | Donne l’armure cheat netherite |
-| `/vanish` | Active/Désactive le vanish |
-| `/vanish <joueur>` | Active/Désactive le vanish d'un autre joueur |
+| Commande | Description | Permission |
+|---|---|---|
+| `/firewand` | Donne la FireWand | `fireballwand.firewand` |
+| `/kickarmor` | Donne la KickArmor | `fireballwand.kickarmor` |
+| `/freezewand` | Donne la FreezeWand | `fireballwand.freezewand` |
+| `/unfreezewand-all` | Dégèle tous les joueurs | `fireballwand.unfreezewand` |
+| `/cheatsword` | Donne l'épée cheat | `fireballwand.cheatsword` |
+| `/cheatmace` | Donne la mace cheat | `fireballwand.cheatmace` |
+| `/diamond_armorcheat` | Donne l'armure cheat diamant | `fireballwand.diamond_armorcheat` |
+| `/netherite_armorcheat` | Donne l'armure cheat netherite | `fireballwand.netherite_armorcheat` |
+| `/vanish` | Active/Désactive son propre vanish | `fireballwand.vanish.level.1` |
+| `/vanish <joueur>` | Active/Désactive le vanish d'un autre joueur | `fireballwand.vanish.others` |
 
 ---
 
-### 🔑 Permissions Vanish
+### 🔑 Permissions
 
-| Permission | Description |
-|------------|------------|
-| `fireballwand.vanish.others` | Permet d'utiliser `/vanish <joueur>` |
-| `fireballwand.vanish.level.1` | Niveau Helper |
-| `fireballwand.vanish.level.2` | Niveau Modérateur |
-| `fireballwand.vanish.level.3` | Niveau Administrateur |
-| `fireballwand.vanish.level.4` | Niveau Propriétaire |
+#### Chat
+
+| Permission | Description | Défaut |
+|---|---|---|
+| `fireballwand.chat.color` | Codes couleur `&x` dans le chat | `false` |
+| `fireballwand.chat.color.hex` | Codes couleur `&#RRGGBB` dans le chat | `false` |
+
+#### Vanish
+
+| Permission | Description | Défaut |
+|---|---|---|
+| `fireballwand.vanish.others` | `/vanish <joueur>` | op |
+| `fireballwand.vanish.level.1` | Niveau Helper — vanish basique | `false` |
+| `fireballwand.vanish.level.2` | Niveau Modérateur — voit les level 1 vanishés | `false` |
+| `fireballwand.vanish.level.3` | Niveau Administrateur — voit les level 1 et 2 vanishés | `false` |
+| `fireballwand.vanish.level.4` | Niveau Propriétaire — voit tous les vanishés | op |
+
+> Les niveaux sont **hiérarchiques** : attribuer `level.3` dans LuckPerms donne automatiquement `level.2` et `level.1`.
 
 ---
 
 ### ⚙️ Configuration
 
-- Messages de bienvenue et format du chat personnalisables via `config.yml`  
-- Config simplifiée pour OP/Admins  
+Tous les éléments du plugin sont personnalisables via `config.yml` :
+
+| Section | Contenu |
+|---|---|
+| `welcome` | Message de bienvenue (activer/désactiver, texte) |
+| `chat` | Format, couleurs par permission, ItemsAdder, messages vanish-chat |
+| `vanish` | Niveaux, action bar, double-sneak spectateur, tous les messages |
+| `firewand` | Nom de l'item, puissance, incendie |
+| `freezewand` | Nom de l'item, tous les messages |
+| `kickarmor` | Nom de l'item, rayon de kick, message de kick |
+| `cheats` | Noms des items (épée, mace, armure) |
 
 ---
 
 ### ⚠️ Notes
 
-- Plugin prévu pour **serveurs fun, events ou SMP privés**  
-- Non recommandé pour serveurs publics compétitifs  
-- Usage réservé aux **OP/Admins**  
+- Plugin prévu pour **serveurs fun, events ou SMP privés**
+- Non recommandé pour serveurs publics compétitifs
+- Usage réservé aux **OP/Admins**
+- LuckPerms et ItemsAdder sont des **soft-depends** (optionnels)
 
 ---
 
-© 2026 Zyumie. Tous droits réservés.  
+© 2026 Zyumie. Tous droits réservés.
 Aucune utilisation, modification ou redistribution sans autorisation explicite.
