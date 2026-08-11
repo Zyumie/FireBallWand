@@ -5,7 +5,7 @@ import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
 import fr.zyumie.Commandes.firewand;
-import fr.zyumie.Commandes.kick_armor;
+import fr.zyumie.Commandes.kickarmor;
 import fr.zyumie.Listener.ChatManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
@@ -54,7 +54,7 @@ public class Main extends JavaPlugin {
         getCommand("firewand").setExecutor(firewand);
         getServer().getPluginManager().registerEvents(firewand, this);
 
-        kick_armor kickArmor = new kick_armor(this);
+        kickarmor kickArmor = new kickarmor(this);
         getCommand("kickarmor").setExecutor(kickArmor);
 
         fr.zyumie.Commandes.freezewand freezewand = new fr.zyumie.Commandes.freezewand(this);
