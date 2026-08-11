@@ -1,50 +1,59 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 3.0.0
-api-version: 1.21
+version: 3.5.0
+api-version: '1.21'
 author: Zyumie
-softdepend: [LuckPerms]
+softdepend: [LuckPerms, ItemsAdder]
 
 commands:
   firewand:
     description: Donne le bâton de feu
     usage: /firewand
+    permission: fireballwand.firewand
 
   kickarmor:
-    description: Donne une armure qui kick les joueurs à 3 blocs
+    description: Donne une armure qui kick les joueurs à portée
     usage: /kickarmor
+    permission: fireballwand.kickarmor
 
   freezewand:
     description: Donne un bâton qui freeze/unfreeze les joueurs
     usage: /freezewand
+    permission: fireballwand.freezewand
 
   unfreezewand-all:
     description: Dégèle tous les joueurs
     usage: /unfreezewand-all
+    permission: fireballwand.unfreezewand
 
   cheatsword:
     description: Donne une épée Cheat
     usage: /cheatsword
+    permission: fireballwand.cheatsword
 
   cheatmace:
     description: Donne une Mace Cheat
     usage: /cheatmace
+    permission: fireballwand.cheatmace
 
   diamond_armorcheat:
     description: Donne une armure en Diamant Cheat
-    usage: /diamond-armorcheat
+    usage: /diamond_armorcheat
+    permission: fireballwand.diamond_armorcheat
 
   netherite_armorcheat:
     description: Donne une armure en Netherite Cheat
-    usage: /netherite-armorcheat
+    usage: /netherite_armorcheat
+    permission: fireballwand.netherite_armorcheat
 
   vanish:
     description: Active/désactive le vanish
     usage: /vanish [joueur]
     permission: fireballwand.vanish.level.1
 
-
 permissions:
+
+  # ── Commandes ──────────────────────────────────────────────────────────────
   fireballwand.firewand:
     description: Permet de give la FireWand
     default: op
@@ -77,10 +86,18 @@ permissions:
     description: Give une armure Netherite Cheat
     default: op
 
-  # ── Vanish ───────────────────────────────────────────────────
+  # ── Chat ───────────────────────────────────────────────────────────────────
+  fireballwand.chat.color:
+    description: Autoriser les codes couleur &x dans le chat
+    default: false
 
+  fireballwand.chat.color.hex:
+    description: Autoriser les codes couleur HEX &#RRGGBB dans le chat
+    default: false
+
+  # ── Vanish ─────────────────────────────────────────────────────────────────
   fireballwand.vanish:
-    description: Permet d'utiliser /vanish (alias héritage)
+    description: Alias vanish (hérite level.1)
     default: false
     children:
       fireballwand.vanish.level.1: true
@@ -89,37 +106,33 @@ permissions:
     description: Permet de vanisher un autre joueur
     default: op
 
-  # ── Niveaux hiérarchiques ───────────────────────────────────────────────────
-  # Règle : level.N hérite de level.(N-1).
-  # Un joueur de niveau N voit les vanishés de niveau 1..N.
+  # Niveaux hiérarchiques :
+  #   level.N hérite de level.(N-1)
+  #   Un observateur de niveau N voit les vanishés de niveau ≤ N
   #
-  # Attribution recommandée dans LuckPerms / permission manager :
-  #   Helper → fireballwand.vanish.level.1
-  #   Modo   → fireballwand.vanish.level.2
-  #   Admin  → fireballwand.vanish.level.3
-  #   Proprio→ fireballwand.vanish.level.4
-  #
-  # Vous pouvez ajouter autant de niveaux que nécessaire ;
-  # mettez à jour "vanish.max-level" dans config.yml en conséquence.
+  #   Helper  → fireballwand.vanish.level.1
+  #   Modo    → fireballwand.vanish.level.2  (voit les level 1)
+  #   Admin   → fireballwand.vanish.level.3  (voit les level 1 et 2)
+  #   Proprio → fireballwand.vanish.level.4  (voit tout)
 
   fireballwand.vanish.level.1:
-    description: "Vanish niveau 1 — Helper (ne voit personne d'autre en vanish)"
+    description: "Vanish niveau 1 — Helper"
     default: false
 
   fireballwand.vanish.level.2:
-    description: "Vanish niveau 2 — Modérateur (voit les level 1 vanishés)"
+    description: "Vanish niveau 2 — Modérateur"
     default: false
     children:
       fireballwand.vanish.level.1: true
 
   fireballwand.vanish.level.3:
-    description: "Vanish niveau 3 — Administrateur (voit les level 1 et 2 vanishés)"
+    description: "Vanish niveau 3 — Administrateur"
     default: false
     children:
       fireballwand.vanish.level.2: true
 
   fireballwand.vanish.level.4:
-    description: "Vanish niveau 4 — Propriétaire (voit tous les vanishés)"
+    description: "Vanish niveau 4 — Propriétaire"
     default: op
     children:
       fireballwand.vanish.level.3: true

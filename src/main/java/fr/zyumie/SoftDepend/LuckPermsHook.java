@@ -17,7 +17,6 @@ public class LuckPermsHook {
     public String getPrefix(Player player) {
         User user = api.getUserManager().getUser(player.getUniqueId());
         if (user == null) return "";
-
         CachedMetaData meta = user.getCachedData().getMetaData();
         return meta.getPrefix() != null ? meta.getPrefix() : "";
     }
@@ -25,7 +24,6 @@ public class LuckPermsHook {
     public String getSuffix(Player player) {
         User user = api.getUserManager().getUser(player.getUniqueId());
         if (user == null) return "";
-
         CachedMetaData meta = user.getCachedData().getMetaData();
         return meta.getSuffix() != null ? meta.getSuffix() : "";
     }

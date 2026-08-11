@@ -1,9 +1,9 @@
 package fr.zyumie.Vanish;
 
+import fr.zyumie.fireballwand.Main;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.ServerListPingEvent;
-import fr.zyumie.fireballwand.Main;
 
 public class ServerListListener implements Listener {
 
@@ -14,8 +14,15 @@ public class ServerListListener implements Listener {
     }
 
     @EventHandler
-    public void onPing(ServerListPingEvent event) {
-        int visible = plugin.getVanishManager().getVisiblePlayerCount();
-        event.getNumPlayers();
+    public void onPing(PaperServerListPingEvent event) {
+
+        int visiblePlayers = plugin.getVanishManager().getVisiblePlayerCount();
+
+        // Évite d'avoir un nombre négatif
+        if (visiblePlayers < 0) {
+            visiblePlayers = 0;
+        }
+
+        event.setNumPlayers(visiblePlayers);
     }
 }
