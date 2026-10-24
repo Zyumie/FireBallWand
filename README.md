@@ -12,36 +12,46 @@
 ### 📌 Version 3.5.0
 
 - Plugin : **FireBallWand**
+
 - Auteur : Zyumie (aka AyanoBrz)
+
 - Spécialité : Donne accès à des **items fun et cheat** destinés aux OP/Admins pour interagir avec les joueurs.
+
 
 ---
 
 ### ✨ Fonctionnalités
 
 - **🔥 FireWand**
+
   Bâton tirant des fireballs à forte puissance *(puissance et incendie configurables)*.
 
 - **👢 KickArmor**
+
   Armure qui repousse / kick automatiquement les joueurs autour du porteur
   *(rayon configurable — les OP ne sont pas affectés)*.
 
 - **❄️ FreezeWand**
+
   Épée qui freeze les joueurs en **mode Survie** *(messages configurables)*.
 
 - **⚔️ Cheat Sword**
+
   Épée surpuissante avec enchantements et attributs abusés.
 
 - **🔨 Cheat Mace**
+
   Mace surpuissante avec enchantements abusés.
 
 - **💎 Cheat Armor**
+
   Sets complets **diamant et netherite** :
   - enchantements extrêmes
   - attributs custom
   - unbreakable
 
 - **👻 Vanish Hiérarchique**
+
   Système de vanish avancé avec gestion des grades :
   - invisible aux joueurs normaux
   - compatible LuckPerms
@@ -52,15 +62,28 @@
   - **double-sneak** pour basculer en mode spectateur (et retour)
   - messages de join/quit supprimés automatiquement
 
+- **💬 Messages Privés Stylés**
+
+  Système de messagerie privée avancé :
+  - formatage sur mesure (`(To joueur)` / `(From joueur)`)
+  - prise en charge des couleurs classiques `&` et HEX `&#RRGGBB`
+  - intégration des glyphes et emojis **ItemsAdder**
+  - commande de réponse rapide (`/r` ou `/reply`)
+
 ---
 
-### 📚 Système Admin
+### 📚 Système Admin & Chat
 
 - Message de bienvenue (configurable, affiché à la première connexion)
-- Format du chat entièrement personnalisable
-- Couleurs dans le chat par permission (`&codes` et `&#HEX`)
+
+- Format du chat global et des messages privés entièrement personnalisable
+
+- Couleurs dans le chat et les MPs par permission (`&codes` et `&#HEX`)
+
 - Compatibilité **LuckPerms** (préfixes, suffixes)
-- Compatibilité **ItemsAdder** (glyphes/images dans le chat — soft-depend)
+
+- Compatibilité **ItemsAdder** (glyphes/images dans le chat et les MPs — soft-depend)
+
 - Système de vanish hiérarchique par niveau
 
 ---
@@ -88,17 +111,19 @@
 | `/netherite_armorcheat` | Donne l'armure cheat netherite | `fireballwand.netherite_armorcheat` |
 | `/vanish` | Active/Désactive son propre vanish | `fireballwand.vanish.level.1` |
 | `/vanish <joueur>` | Active/Désactive le vanish d'un autre joueur | `fireballwand.vanish.others` |
+| `/msg <joueur> <msg>` | Envoie un message privé à un joueur | *Aucune (Disponible pour tous)* |
+| `/r <msg>` *(ou `/reply`)* | Répond au dernier interlocuteur | *Aucune (Disponible pour tous)* |
 
 ---
 
 ### 🔑 Permissions
 
-#### Chat
+#### Chat & Messages Privés
 
 | Permission | Description | Défaut |
 |---|---|---|
-| `fireballwand.chat.color` | Codes couleur `&x` dans le chat | `false` |
-| `fireballwand.chat.color.hex` | Codes couleur `&#RRGGBB` dans le chat | `false` |
+| `fireballwand.chat.color` | Codes couleur `&x` dans le chat et les MPs | `false` |
+| `fireballwand.chat.color.hex` | Codes couleur `&#RRGGBB` dans le chat et les MPs | `false` |
 
 #### Vanish
 
@@ -122,6 +147,7 @@ Tous les éléments du plugin sont personnalisables via `config.yml` :
 |---|---|
 | `welcome` | Message de bienvenue (activer/désactiver, texte) |
 | `chat` | Format, couleurs par permission, ItemsAdder, messages vanish-chat |
+| `messages` | Formats des MPs (`format-to`, `format-from`) |
 | `vanish` | Niveaux, action bar, double-sneak spectateur, tous les messages |
 | `firewand` | Nom de l'item, puissance, incendie |
 | `freezewand` | Nom de l'item, tous les messages |
@@ -134,7 +160,7 @@ Tous les éléments du plugin sont personnalisables via `config.yml` :
 
 - Plugin prévu pour **serveurs fun, events ou SMP privés**
 - Non recommandé pour serveurs publics compétitifs
-- Usage réservé aux **OP/Admins**
+- Usage des items réservé aux **OP/Admins**
 - LuckPerms et ItemsAdder sont des **soft-depends** (optionnels)
 
 ---
