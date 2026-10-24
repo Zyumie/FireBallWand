@@ -1,4 +1,4 @@
-package fr.zyumie.Listener;
+package fr.zyumie.Chat;
 
 import fr.zyumie.fireballwand.Main;
 import net.md_5.bungee.api.ChatColor;
@@ -90,7 +90,7 @@ public class ChatManager implements Listener {
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
-        // ── Vanish : message bloqué sauf si se termine par le suffixe config ──
+        // ── Vanish ──
         if (plugin.getVanishManager().isVanished(player)) {
             String suffix  = plugin.getConfig().getString("chat.vanish-chat-suffix", "/");
             String warning = plugin.getConfig().getString("chat.vanish-chat-warning",
@@ -101,12 +101,11 @@ public class ChatManager implements Listener {
                 player.sendMessage(colorize(warning));
                 return;
             }
-            // Retirer le suffixe avant envoi
             event.setMessage(event.getMessage()
                     .substring(0, event.getMessage().length() - suffix.length()).stripTrailing());
         }
 
-        // ── Préfix / Suffix LuckPerms ──
+        // ── Prefix / Suffix LuckPerms ──
         String prefix = "";
         String suffix = "";
         if (plugin.getLuckPermsHook() != null) {
@@ -114,20 +113,24 @@ public class ChatManager implements Listener {
             suffix = plugin.getLuckPermsHook().getSuffix(player);
         }
 
-        // ── ItemsAdder : résolution des glyphes dans préfix/suffix ──
+        // ── Message joueur ──
+        String message = colorizeWithPermission(player, event.getMessage());
+
+        // ── Appliquer ItemsAdder sur Prefix, Suffix ET Message ──
         if (plugin.getItemsAdderHook() != null
                 && plugin.getItemsAdderHook().isAvailable()
                 && plugin.getConfig().getBoolean("chat.itemsadder.enabled", true)) {
-            prefix = plugin.getItemsAdderHook().replaceFontImages(prefix);
-            suffix = plugin.getItemsAdderHook().replaceFontImages(suffix);
+
+            // 1. Remplacement des images (:img_admin:) D'ABORD
+            prefix  = plugin.getItemsAdderHook().replaceFontImages(prefix);
+            suffix  = plugin.getItemsAdderHook().replaceFontImages(suffix);
+            message = plugin.getItemsAdderHook().replaceFontImages(message);
         }
 
-        // Coloriser préfix/suffix (droits serveur, pas du joueur)
+        // 2. Coloriser préfixe/suffixe APRES ItemsAdder
         prefix = colorize(prefix);
         suffix = colorize(suffix);
 
-        // ── Message joueur : couleurs selon permission ──
-        String message = colorizeWithPermission(player, event.getMessage());
         event.setMessage(message);
 
         // ── Format final ──
@@ -138,9 +141,10 @@ public class ChatManager implements Listener {
                 .replace("%prefix%",  prefix)
                 .replace("%player%",  player.getName())
                 .replace("%suffix%",  suffix)
-                .replace("%message%", "%2$s"); // %2$s = placeholder Bukkit pour le message
+                .replace("%message%", "%2$s"); // Placeholder Bukkit pour le message
 
-        // Coloriser le format lui-même (hors message joueur déjà traité)
+        format = format.replaceAll("%(?!(1\\$s|2\\$s))", "%%");
+
         format = colorize(format);
 
         event.setFormat(format);

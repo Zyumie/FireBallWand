@@ -1,6 +1,6 @@
 package fr.zyumie.Commandes.Cheats;
 
-import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;

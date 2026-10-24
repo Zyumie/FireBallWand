@@ -43,8 +43,17 @@ chat:
   vanish-chat-warning: "&7[Vanish] &cMettez &f/ &cen fin de message pour envoyer."
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Msg
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+messages:
+  format-to: "&7[To &f%target%&7] &f%message%"
+  format-from: "&7[From &f%sender%&7] &f%message%"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  VANISH
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 vanish:
   # Niveau maximum scanné (fireballwand.vanish.level.N de 1 à max-level)
   max-level: 10
@@ -75,6 +84,25 @@ vanish:
     spectator-off: "&7[Vanish] &cMode spectateur désactivé."
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  POTION OF DEATH
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+potion-of-death:
+  name: "&4&l☠ Potion of Death ☠"
+  lore:
+    - "&7Un clic pour envoyer n'importe qui"
+    - "&7dans l'au-delà (même en Créatif !)"
+    - "&8Inventaire conservé."
+  broadcast:
+    enabled: true
+  messages:
+    given: "&aTu as reçu la Potion of Death !"
+    no-permission: "&c❌ Tu n'as pas la permission d'utiliser cette commande."
+    bypass: "&a🛡 Tu as résisté à la Potion of Death grâce à tes privilèges !"
+    victim-killed: "&c⚡ Tu as été exterminé par une Potion of Death !"
+    broadcast-killed: "&4☠ %player% a été terrassé par une Potion of Death !"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  FIREWAND
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 firewand:
@@ -102,6 +130,22 @@ kickarmor:
   name: "&cPlastron du Kick"
   radius: 3.0
   kick-message: "Trop près d'un joueur protégé."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  WINCHARGE BOOSTED
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+wincharge:
+  name: "&eWincharge &6Boosted"
+  lore:
+    - "&7Une charge explosive mortelle !"
+    - "&cExtermine instantanément la cible."
+  radius: 2.5
+  particles-count: 3
+  cooldown: 5 # Temps de recharge en secondes
+  messages:
+    cooldown: "&c❌ Attends encore %seconds%s avant d'utiliser la Wincharge Boosted."
+    given: "&aTu as reçu une &eWincharge &6Boosted &a!"
+    killed: "&c⚡ Tu as été exterminé par une Wincharge Boosted !"
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  CHEATS (armes & armures)

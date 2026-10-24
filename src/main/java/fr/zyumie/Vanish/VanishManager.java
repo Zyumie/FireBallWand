@@ -1,5 +1,6 @@
 package fr.zyumie.Vanish;
 
+import fr.zyumie.Chat.ChatManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -136,10 +137,10 @@ public class VanishManager {
             // Sauvegarder le gamemode actuel et passer en spectateur
             previousGameMode.put(player.getUniqueId(), player.getGameMode());
             player.setGameMode(GameMode.SPECTATOR);
-            player.sendMessage(fr.zyumie.Listener.ChatManager.colorize(msgOn));
+            player.sendMessage(ChatManager.colorize(msgOn));
         } else {
             restoreGameMode(player);
-            player.sendMessage(fr.zyumie.Listener.ChatManager.colorize(msgOff));
+            player.sendMessage(ChatManager.colorize(msgOff));
         }
     }
 

@@ -4,9 +4,13 @@ import fr.zyumie.Commandes.Cheats.cheatmace;
 import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
+import fr.zyumie.Chat.MsgCommand;
+import fr.zyumie.Chat.MsgManager;
+import fr.zyumie.Commandes.PotionOfDeath;
+import fr.zyumie.Commandes.WinCharge_Boosted;
 import fr.zyumie.Commandes.firewand;
 import fr.zyumie.Commandes.kickarmor;
-import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
 import fr.zyumie.SoftDepend.LuckPermsHook;
@@ -45,29 +49,45 @@ public class Main extends JavaPlugin {
 
         // ── Vanish (instancié EN PREMIER — les listeners en dépendent) ───────
         vanishManager = new VanishManager(this);
-        getCommand("vanish").setExecutor(new VanishCommand(this));
+        if (getCommand("vanish") != null) getCommand("vanish").setExecutor(new VanishCommand(this));
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new ServerListListener(this), this);
 
         // ── Commandes ────────────────────────────────────────────────────────
-        firewand firewand = new firewand(this);
-        getCommand("firewand").setExecutor(firewand);
-        getServer().getPluginManager().registerEvents(firewand, this);
+        firewand firewandCmd = new firewand(this);
+        if (getCommand("firewand") != null) getCommand("firewand").setExecutor(firewandCmd);
+        getServer().getPluginManager().registerEvents(firewandCmd, this);
 
         kickarmor kickArmor = new kickarmor(this);
-        getCommand("kickarmor").setExecutor(kickArmor);
+        if (getCommand("kickarmor") != null) getCommand("kickarmor").setExecutor(kickArmor);
 
         fr.zyumie.Commandes.freezewand freezewand = new fr.zyumie.Commandes.freezewand(this);
-        getCommand("freezewand").setExecutor(freezewand);
-        getCommand("unfreezewand-all").setExecutor(freezewand);
+        if (getCommand("freezewand") != null) getCommand("freezewand").setExecutor(freezewand);
+        if (getCommand("unfreezewand-all") != null) getCommand("unfreezewand-all").setExecutor(freezewand);
 
-        getCommand("cheatsword").setExecutor(new cheatsword(this));
-        getCommand("cheatmace").setExecutor(new cheatmace(this));
-        getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat(this));
-        getCommand("netherite_armorcheat").setExecutor(new netherite_armorcheat(this));
+        WinCharge_Boosted winCharge = new WinCharge_Boosted(this);
+        if (getCommand("wincharge_boosted") != null) getCommand("wincharge_boosted").setExecutor(winCharge);
+        getServer().getPluginManager().registerEvents(winCharge, this);
+
+        PotionOfDeath potionOfDeath = new PotionOfDeath(this);
+        if (getCommand("potionofdeath") != null) {
+            getCommand("potionofdeath").setExecutor(potionOfDeath);
+        }
+        getServer().getPluginManager().registerEvents(potionOfDeath, this);
+
+        if (getCommand("cheatsword") != null) getCommand("cheatsword").setExecutor(new cheatsword(this));
+        if (getCommand("cheatmace") != null) getCommand("cheatmace").setExecutor(new cheatmace(this));
+        if (getCommand("diamond_armorcheat") != null) getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat(this));
+        if (getCommand("netherite_armorcheat") != null) getCommand("netherite_armorcheat").setExecutor(new netherite_armorcheat(this));
+
+        // ── System de Msg ───────────────────────────────────────────────────
+        MsgManager msgManager = new MsgManager(this);
+        MsgCommand msgCommand = new MsgCommand(msgManager);
+
+        if (getCommand("msg") != null) getCommand("msg").setExecutor(msgCommand);
+        if (getCommand("reply") != null) getCommand("reply").setExecutor(msgCommand);
 
         // ── Listeners généraux ───────────────────────────────────────────────
-        getServer().getPluginManager().registerEvents(new ConfigManager(this), this);
         getServer().getPluginManager().registerEvents(new ChatManager(this), this);
 
         // ── Version check ────────────────────────────────────────────────────
@@ -103,10 +123,10 @@ public class Main extends JavaPlugin {
         getLogger().info(RED    + "                                 .''.");
         getLogger().info(ORANGE + "       .''.             *''*    :_\\/_:     . ");
         getLogger().info(YELLOW + "      :_\\/_:   .    .:.*_\\/_*   : /\\ :  .'.:.'.");
-        getLogger().info(RED    + "  .''.: /\\ : _\\(/_  ':'* /\\ *  : '..'.  -=:o:=-");
+        getLogger().info(RED    + "  .''.: /\\ : _\\(/_  ':'* /\\ : '..'.  -=:o:=-");
         getLogger().info(ORANGE + " :_\\/_:'.:::. /)\\*''*  .|.* '.\\'/.'_\\(/_'.':'.'");
         getLogger().info(YELLOW + " : /\\ : :::::  '*_\\/_* | |  -= o =- /)\\    '  *");
-        getLogger().info(RED    + " '..'  ':::'   * /\\ * |'|  .'/.'\\'.  '._____");
+        getLogger().info(RED    + " '..'  ':::'   * /\\|'|  .'/.'\\'.  '._____");
         getLogger().info(ORANGE + "      *        __*..* |  |     :      |.   |' .---\"|");
         getLogger().info(YELLOW + "       _*   .-'   '-. |  |     .--'|  ||   | _|    |");
         getLogger().info(RED    + "    .-'|  _.|  |    ||   '-__  |   |  |    ||      |");

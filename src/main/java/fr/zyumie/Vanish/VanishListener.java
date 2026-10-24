@@ -1,6 +1,6 @@
 package fr.zyumie.Vanish;
 
-import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.fireballwand.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;

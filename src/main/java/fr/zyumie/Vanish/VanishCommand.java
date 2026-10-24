@@ -1,6 +1,6 @@
 package fr.zyumie.Vanish;
 
-import fr.zyumie.Listener.ChatManager;
+import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
