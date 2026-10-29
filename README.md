@@ -7,154 +7,89 @@
 
 ---
 
-## 🔥 FireBallWand — Plugin Minecraft
+# 🔥 FireBallWand — The Ultimate Admin & Fun Tool!
 
-### 📌 Version 3.5.0
-
-- Plugin : **FireBallWand**
-- Auteur : Zyumie (aka AyanoBrz)
-- Spécialité : Donne accès à des **items fun et cheat** destinés aux OP/Admins pour interagir avec les joueurs.
+Looking to boost your server, provide seamless invisible moderation, and equip your administrators with an extraordinary arsenal? **FireBallWand** is the all-in-one plugin you need. Designed to combine **maximum performance** with **pure fun**, it transforms the gameplay experience on private SMP, fun, and event servers.
 
 ---
 
-### ✨ Fonctionnalités
+## 🌟 Why Choose FireBallWand?
 
-- **🔥 FireWand**
-  Bâton tirant des fireballs à forte puissance *(puissance et incendie configurables)*.
-
-- **👢 KickArmor**
-  Armure qui repousse / kick automatiquement les joueurs autour du porteur *(rayon configurable — les OP ne sont pas affectés)*.
-
-- **❄️ FreezeWand**
-  Épée qui freeze les joueurs en **mode Survie** *(messages configurables)*.
-
-- **☠️ Potion of Death**
-  Splash Potion personnalisée qui tue instantanément la cible (même en Créatif / Aventure) tout en **conservant son inventaire complet (Keep Inventory)**. *(Supporte le bypass permission/OP, l'annonce dans le chat activable/désactivable et les messages configurables)*.
-
-- **💨 WinCharge Boosted**
-  Charge de vent personnalisée qui génère une explosion mortelle pour les joueurs touchés avec **Keep Inventory**.
-
-- **⚔️ Cheat Sword**
-  Épée surpuissante avec enchantements et attributs abusés.
-
-- **🔨 Cheat Mace**
-  Mace surpuissante avec enchantements abusés.
-
-- **💎 Cheat Armor**
-  Sets complets **diamant et netherite** (enchantements extrêmes, attributs custom, unbreakable).
-
-- **👻 Vanish Hiérarchique**
-  Système de vanish avancé avec gestion des grades (invisible aux joueurs normaux, compatible LuckPerms, action bar, double-sneak spectateur).
-
-- **💬 Messages Privés Stylés**
-  Système de messagerie privée avancé (`/msg`, `/reply`, `/r`, `/re`) avec support HEX, couleurs `&` et emojis ItemsAdder.
+* **⚡ Zero-Lag Performance:** Asynchronous saves and highly optimized code to guarantee a rock-solid 20 TPS no matter what happens.
+* **📂 Modular & Clean:** No more overloaded config files! The plugin separates its features into dedicated YAML files (`Vanish.yml`, `CustomCheat.yml`, `StartKit.yml`, `Tpa.yml`).
+* **🔮 Modern Player Experience:** Interactive chat interfaces, clickable buttons, and seamless navigation.
 
 ---
 
-### 📚 Système Admin & Chat
+## 🚀 Key Features
 
-- Message de bienvenue (configurable, affiché à la première connexion).
-- Format du chat global et des messages privés entièrement personnalisable.
-- Couleurs dans le chat et les MPs par permission (`&codes` et `&#HEX`).
-- Compatibilité **LuckPerms** (préfixes, suffixes).
-- Compatibilité **ItemsAdder** (glyphes/images dans le chat et les MPs — soft-depend).
-- Système de vanish hiérarchique par niveau.
+### 🔮 High-Performance TPA System
+* **Unified Commands:** `/tpa`, `/tpahere`, `/tpaccept`, `/tpdeny`, `/tpacancel`.
+* **Interactive Chat:** Accept or deny teleport requests with a single click directly in the chat!
+* **Safety & Warmup:** Configurable delay before teleportation (cancelled on movement or damage) paired with post-teleport invincibility protection displayed in the ActionBar.
+* **Asynchronous File I/O:** No server stutter or TPS drops when saving cooldown data.
 
----
+### 👻 Intelligent Hierarchical Vanish
+* **Level-Based Hierarchy:** Higher staff ranks can see lower vanished staff, but lower ranks cannot see higher ranks.
+* **Instant Spectator Mode:** A quick *double-sneak* allows staff to instantly switch to spectator mode (and back).
+* **Absolute Discretion:** Join/leave messages are hidden, a persistent action bar reminder is displayed, and the server list player count (`ServerListPing`) is smartly synchronized.
 
-### 🔧 Installation
+### 🎒 Ready-to-Use Starter Kit (`/starterkit`)
+* **Balanced Adventurer Kit:** Enchanted iron armor, diamond tools, food, and survival consumables.
+* **Automatic Granting:** Automatically given to new players upon their very first join.
+* **Managed Cooldowns:** Claim delay management with dedicated *bypass* permissions.
 
-1. Installer un serveur compatible **PaperMC ou Purpur** (1.21+ recommandé).
-2. Télécharger `FireBallWand.jar` et le placer dans le dossier `plugins/`.
-3. Redémarrer le serveur.
-4. *(Optionnel)* Installer **LuckPerms** et/ou **ItemsAdder** pour les fonctionnalités avancées.
-
----
-
-### 🎮 Commandes
-
-| Commande | Description | Permission |
-|---|---|---|
-| `/firewand` | Donne la FireWand | `fireballwand.firewand` |
-| `/kickarmor` | Donne la KickArmor | `fireballwand.kickarmor` |
-| `/freezewand` | Donne la FreezeWand | `fireballwand.freezewand` |
-| `/unfreezewand-all` | Dégèle tous les joueurs | `fireballwand.unfreezewand` |
-| `/potionofdeath` *(alias `/pod`)* | Donne la Potion of Death | `fireballwand.potion-of-death` |
-| `/wincharge_boosted` | Donne la WinCharge Boosted | `fireballwand.wincharge_boosted` |
-| `/cheatsword` | Donne l'épée cheat | `fireballwand.cheatsword` |
-| `/cheatmace` | Donne la mace cheat | `fireballwand.cheatmace` |
-| `/diamond_armorcheat` | Donne l'armure cheat diamant | `fireballwand.diamond_armorcheat` |
-| `/netherite_armorcheat` | Donne l'armure cheat netherite | `fireballwand.netherite_armorcheat` |
-| `/vanish [joueur]` | Active/Désactive le vanish | `fireballwand.vanish.level.1` |
-| `/msg <joueur> <msg>` | Envoie un message privé à un joueur | *Aucune (Disponible pour tous)* |
-| `/reply <msg>` *(alias `/r`, `/re`)* | Répond au dernier interlocuteur | *Aucune (Disponible pour tous)* |
+### 💥 Extraordinary Arsenal for Admins
+* **🔥 FireWand:** A devastating rod that launches explosive fireballs.
+* **👢 KickArmor:** Protective chestplate that automatically pushes/kicks curious players getting too close.
+* **❄️ FreezeWand:** Instantly freezes target players in place while in Survival mode.
+* **⚡ WinCharge Boosted (x3):** A high-powered explosive charge capable of instantly eliminating targets.
+* **☠️ Potion of Death:** The famous splash potion for instant elimination (ignores Creative mode and manages Keep Inventory).
+* **⚔️ Cheat Weapons & Armors:** Overpowered swords, maces, and complete Diamond/Netherite sets with extreme attributes and enchantments (Level 255+).
 
 ---
 
-### 🔑 Permissions
+## ⚙️ Modular Architecture (YAML)
 
-#### Items & Commandes Admin
-
-| Permission | Description | Défaut |
-|---|---|---|
-| `fireballwand.potion-of-death` | Give et utilisation de la Potion of Death | op |
-| `fireballwand.potion-of-death.bypass` | Immunité contre la Potion of Death | op |
-| `fireballwand.wincharge_boosted` | Give et utilisation de la WinCharge Boosted | op |
-| `fireballwand.wincharge.bypass` | Immunité contre les explosions de la Wincharge | op |
-| `fireballwand.firewand` | Give la FireWand | op |
-| `fireballwand.kickarmor` | Give la KickArmor | op |
-| `fireballwand.freezewand` | Give la FreezeWand | op |
-| `fireballwand.unfreezewand` | Dégeler tous les joueurs | op |
-| `fireballwand.cheatsword` | Give l'épée Cheat | op |
-| `fireballwand.cheatmace` | Give la Mace Cheat | op |
-| `fireballwand.diamond_armorcheat` | Give l'armure Diamant Cheat | op |
-| `fireballwand.netherite_armorcheat` | Give l'armure Netherite Cheat | op |
-
-#### Chat & Messages Privés
-
-| Permission | Description | Défaut |
-|---|---|---|
-| `fireballwand.msg` | Envoyer des messages privés | true |
-| `fireballwand.reply` | Répondre aux messages privés | true |
-| `fireballwand.chat.color` | Codes couleur `&x` dans le chat et MPs | false |
-| `fireballwand.chat.color.hex` | Codes couleur HEX `&#RRGGBB` dans le chat | false |
-
-#### Vanish
-
-| Permission | Description | Défaut |
-|---|---|---|
-| `fireballwand.vanish.others` | Vanisher un autre joueur | op |
-| `fireballwand.vanish.level.1` | Niveau Helper — vanish basique | false |
-| `fireballwand.vanish.level.2` | Niveau Modérateur — voit les level 1 | false |
-| `fireballwand.vanish.level.3` | Niveau Admin — voit les level 1 et 2 | false |
-| `fireballwand.vanish.level.4` | Niveau Propriétaire — voit tous les vanishés | op |
+Keep total control over your configuration thanks to a clean file layout:
+* 📁 `config.yml`: General settings, chat, and private messages.
+* 📁 `CustomCheat.yml`: Full customization of all special items, weapons, and armors.
+* 📁 `Vanish.yml`: Management of vanish levels and associated messages.
+* 📁 `StartKit.yml`: Complete configuration for the starter kit.
+* 📁 `Tpa.yml`: Complete settings for the teleportation system.
 
 ---
 
-### ⚙️ Configuration (`config.yml`)
+## 📥 Installation
 
-Tous les éléments du plugin sont personnalisables via `config.yml` :
-
-| Section | Contenu |
-|---|---|
-| `potion-of-death` | Nom, lore, activation/désactivation de l'annonce dans le chat et tous les messages. |
-| `wincharge` | Nom, lore, cooldown, rayon, particules et messages. |
-| `welcome` | Message de bienvenue (activer/désactiver, texte). |
-| `chat` | Format, couleurs par permission, ItemsAdder, messages vanish-chat. |
-| `messages` | Formats des MPs (`format-to`, `format-from`). |
-| `vanish` | Niveaux, action bar, double-sneak spectateur, tous les messages. |
-| `firewand` / `freezewand` / `kickarmor` | Propriétés des items et messages associatifs. |
+1. Make sure you are running a server on **PaperMC** or **Purpur** (1.21+ recommended).
+2. Drag `FireBallWand.jar` into your `plugins/` folder.
+3. Restart the server: configuration files will generate automatically.
+4. *(Optional)* Install **LuckPerms** and/or **ItemsAdder** to enjoy advanced chat and rank hooks!
 
 ---
 
-### ⚠️ Notes
+## 🎮 Quick Command List
 
-- Plugin prévu pour **serveurs fun, events ou SMP privés**.
-- Non recommandé pour serveurs publics compétitifs.
-- Usage des items réservé aux **OP/Admins**.
-- LuckPerms et ItemsAdder sont des **soft-depends** (optionnels).
+| Command | Description | Permission |
+| :--- | :--- | :--- |
+| `/starterkit` | Claim the starter kit | `fireballwand.starterkit` |
+| `/tpa <player>` | Request to teleport to a player | `fireballwand.tpa` |
+| `/tpahere <player>` | Invite a player to teleport to you | `fireballwand.tpahere` |
+| `/vanish` | Toggle your vanish status | `fireballwand.vanish.level.1` |
+| `/firewand` | Get the FireWand | `fireballwand.firewand` |
+| `/kickarmor` | Get the KickArmor | `fireballwand.kickarmor` |
+| `/freezewand` | Get the FreezeWand | `fireballwand.freezewand` |
+| `/wincharge_boosted` | Get the boosted WinCharge | `fireballwand.wincharge_boosted` |
+| `/potionofdeath` (`/pod`) | Get the Potion of Death | `fireballwand.potion-of-death` |
+| `/cheatsword` / `/cheatmace` | Get the cheat weapons | `fireballwand.cheatsword` / `.cheatmace` |
+| `/diamond_armorcheat` | Get the diamond cheat armor | `fireballwand.diamond_armorcheat` |
+| `/netherite_armorcheat` | Get the netherite cheat armor | `fireballwand.netherite_armorcheat` |
 
 ---
 
-© 2026 Zyumie. Tous droits réservés.
-Aucune utilisation, modification ou redistribution sans autorisation explicite.
+<div align="center">
+
+*Made with ❤️ by **Zyumie** (aka AyanoBrz)*
+
+</div>
