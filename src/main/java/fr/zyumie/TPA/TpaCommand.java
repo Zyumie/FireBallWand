@@ -189,7 +189,6 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("fireballwand.tpa.admin")) return true;
 
         plugin.getTpaConfigManager().loadConfig();
-        plugin.getTpaManager().loadCooldowns();
         TpaMessageUtil.sendMessage(sender, plugin.getTpaConfigManager().getPrefix(), plugin.getTpaConfigManager().getMessage("config-reloaded", "&aRechargé !"));
         return true;
     }

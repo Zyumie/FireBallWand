@@ -1,16 +1,14 @@
 package fr.zyumie.fireballwand;
 
+import fr.zyumie.Commandes.*;
 import fr.zyumie.Commandes.Cheats.cheatmace;
 import fr.zyumie.Commandes.Cheats.cheatsword;
 import fr.zyumie.Commandes.Cheats.diamond_armorcheat;
 import fr.zyumie.Commandes.Cheats.netherite_armorcheat;
 import fr.zyumie.Chat.MsgCommand;
 import fr.zyumie.Chat.MsgManager;
-import fr.zyumie.Commandes.PotionOfDeath;
-import fr.zyumie.Commandes.WinCharge_Boosted;
-import fr.zyumie.Commandes.firewand;
-import fr.zyumie.Commandes.kickarmor;
 import fr.zyumie.Chat.ChatManager;
+import fr.zyumie.Commandes.FunnyItems.*;
 import fr.zyumie.Listener.StartKitManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
@@ -46,6 +44,11 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         // Config Manager personnalisé (Gère config.yml, Vanish.yml, CustomCheat.yml)
         customConfigManager = new ConfigManager(this);
+
+        // ── Commande globale /fw reload ─────────────────────────────────────
+        if (getCommand("fireballwand") != null) {
+            getCommand("fireballwand").setExecutor(new FireballWandCommand(this));
+        }
 
         // ── Soft depends ─────────────────────────────────────────────────────
         if (getServer().getPluginManager().getPlugin("LuckPerms") != null) {
@@ -109,7 +112,7 @@ public class Main extends JavaPlugin {
         kickarmor kickArmor = new kickarmor(this);
         if (getCommand("kickarmor") != null) getCommand("kickarmor").setExecutor(kickArmor);
 
-        fr.zyumie.Commandes.freezewand freezewand = new fr.zyumie.Commandes.freezewand(this);
+        freezewand freezewand = new freezewand(this);
         if (getCommand("freezewand") != null) getCommand("freezewand").setExecutor(freezewand);
         if (getCommand("unfreezewand-all") != null) getCommand("unfreezewand-all").setExecutor(freezewand);
 
@@ -141,6 +144,7 @@ public class Main extends JavaPlugin {
 
         if (getCommand("starterkit") != null) {
             getCommand("starterkit").setExecutor(startKitManager);
+            getCommand("starterkit").setTabCompleter(startKitManager); // <--- Ajoute cette ligne
         }
 
         // ── Listeners généraux ───────────────────────────────────────────────
@@ -159,7 +163,6 @@ public class Main extends JavaPlugin {
         if (vanishManager != null) vanishManager.clear();
         if (tpaTeleportManager != null) tpaTeleportManager.cancelAll();
         if (tpaInvincibilityManager != null) tpaInvincibilityManager.clearAll();
-        if (tpaManager != null) tpaManager.saveCooldownsSync();
 
         getLogger().info("════════════════════════════════════");
         getLogger().info("🔥 FireBallWand désactivé... :(");

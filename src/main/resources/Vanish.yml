@@ -18,6 +18,12 @@ spectator-on-sneak:
   # Délai max en ms entre les deux sneaks pour valider le double-sneak
   double-sneak-delay: 400
 
+# Messages de connexion / déconnexion simulés lors du passage en vanish
+fake-join-quit-messages:
+  enabled: true
+  join: "&e%player% joined the game."   # Remplace le message de connexion classique
+  quit: "&e%player% left the game."     # Remplace le message de déconnexion classique
+
 # Messages
 messages:
   enable: "&aVanish activé. &7(niveau &f%level%&7)"

@@ -1,4 +1,4 @@
-package fr.zyumie.Commandes;
+package fr.zyumie.Commandes.FunnyItems;
 
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.Bukkit;

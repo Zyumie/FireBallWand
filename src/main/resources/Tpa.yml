@@ -7,8 +7,8 @@ prefix: "&8[&bTPA&8] &r"
 
 # Paramètres des délais (en secondes)
 cooldowns:
-  # Temps d'attente entre chaque téléportation TPA réussie (10 minutes = 600 secondes)
-  tpa: 600
+  # Temps d'attente entre chaque téléportation TPA réussie (10 secondes)
+  tpa: 10
 
 # Durée de validité d'une demande envoyée (en secondes)
 request-expiration-seconds: 60

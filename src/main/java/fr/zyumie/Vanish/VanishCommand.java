@@ -3,6 +3,7 @@ package fr.zyumie.Vanish;
 import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.Vanish.Listener.VanishManager;
 import fr.zyumie.fireballwand.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -52,6 +53,8 @@ public class VanishCommand implements CommandExecutor {
         }
 
         // ── Toggle ───────────────────────────────────────────────────────────
+        boolean fakeMsgEnabled = plugin.getVanishConfig().getBoolean("fake-join-quit-messages.enabled", true);
+
         if (!vm.isVanished(target)) {
             vm.enableVanish(target);
             int lvl = vm.getVanishLevel(target);
@@ -62,6 +65,17 @@ public class VanishCommand implements CommandExecutor {
             if (!target.equals(player))
                 target.sendMessage(msg("vanish.messages.enable-other", "&aTon vanish a été activé par &f%player%&a.")
                         .replace("%player%", player.getName()));
+
+            // Simuler un message de QUIT (déconnexion) dans le chat
+            if (fakeMsgEnabled) {
+                String quitRaw = plugin.getVanishConfig().getString("fake-join-quit-messages.quit", "&e%player% left the game.");
+                String quitMsg = ChatManager.colorize(quitRaw.replace("%player%", target.getName()));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    // On l'envoie uniquement à ceux qui peuvent le voir se faire "déconnecter" (ou à tout le monde selon la logique)
+                    p.sendMessage(quitMsg);
+                }
+            }
+
         } else {
             vm.disableVanish(target);
 
@@ -70,6 +84,15 @@ public class VanishCommand implements CommandExecutor {
             if (!target.equals(player))
                 target.sendMessage(msg("vanish.messages.disable-other", "&cTon vanish a été désactivé par &f%player%&c.")
                         .replace("%player%", player.getName()));
+
+            // Simuler un message de JOIN (connexion) dans le chat
+            if (fakeMsgEnabled) {
+                String joinRaw = plugin.getVanishConfig().getString("fake-join-quit-messages.join", "&e%player% joined the game.");
+                String joinMsg = ChatManager.colorize(joinRaw.replace("%player%", target.getName()));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendMessage(joinMsg);
+                }
+            }
         }
 
         return true;

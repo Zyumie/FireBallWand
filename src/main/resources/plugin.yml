@@ -1,11 +1,18 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: ${Version}
+version: ${version}
 api-version: '1.21'
 author: Zyumie
 softdepend: [LuckPerms, ItemsAdder]
 
 commands:
+
+  fireballwand:
+    description: Commande principale du plugin FireballWand
+    usage: /fw reload
+    aliases: [ fw ]
+    permission: fireballwand.admin
+
   firewand:
     description: Donne le bâton de feu
     usage: /firewand
@@ -59,7 +66,7 @@ commands:
 
   starterkit:
     description: Récupérer le kit de départ.
-    usage: /starterkit
+    usage: /starterkit <joueur>
     permission: fireballwand.starterkit
 
   msg:
@@ -111,6 +118,11 @@ commands:
     permission: fireballwand.tpa.admin
 
 permissions:
+
+  permissions:
+    fireballwand.admin:
+      description: Permet de recharger toutes les configurations du plugin.
+      default: op
 
   # ── Commandes ──────────────────────────────────────────────────────────────
   fireballwand.firewand:
