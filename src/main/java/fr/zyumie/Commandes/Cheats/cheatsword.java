@@ -36,7 +36,7 @@ public class cheatsword implements CommandExecutor {
         }
 
         String name = ChatManager.colorize(
-                plugin.getConfig().getString("cheats.sword.name", "&4Épée Cheater"));
+                plugin.getCustomCheatConfig().getString("cheats.sword.name", "&4Épée Cheater"));
 
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();

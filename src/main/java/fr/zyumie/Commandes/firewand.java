@@ -24,10 +24,9 @@ public class firewand implements Listener, CommandExecutor {
         this.plugin = plugin;
     }
 
-    /** Nom lu depuis la config à chaque fois → rechargeable sans redémarrage. */
     private String wandName() {
         return ChatManager.colorize(
-                plugin.getConfig().getString("firewand.name", "&cBâton de Feu"));
+                plugin.getCustomCheatConfig().getString("firewand.name", "&cBâton de Feu"));
     }
 
     @Override
@@ -62,8 +61,8 @@ public class firewand implements Listener, CommandExecutor {
         if (meta == null || !meta.hasDisplayName()) return;
         if (!meta.getDisplayName().equals(wandName())) return;
 
-        boolean incendiary = plugin.getConfig().getBoolean("firewand.incendiary", true);
-        float yield = (float) plugin.getConfig().getDouble("firewand.yield", 50.0);
+        boolean incendiary = plugin.getCustomCheatConfig().getBoolean("firewand.incendiary", true);
+        float yield = (float) plugin.getCustomCheatConfig().getDouble("firewand.yield", 50.0);
 
         Fireball fireball = player.launchProjectile(Fireball.class);
         fireball.setIsIncendiary(incendiary);

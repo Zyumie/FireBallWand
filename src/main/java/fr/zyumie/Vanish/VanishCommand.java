@@ -1,6 +1,7 @@
 package fr.zyumie.Vanish;
 
 import fr.zyumie.Chat.ChatManager;
+import fr.zyumie.Vanish.Listener.VanishManager;
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -76,7 +77,7 @@ public class VanishCommand implements CommandExecutor {
 
     /** Récupère un message de la config et le colorise. */
     private String msg(String path, String fallback) {
-        String raw = plugin.getConfig().getString(path, fallback);
+        String raw = plugin.getVanishConfig().getString(path, fallback);
         return ChatManager.colorize(raw);
     }
 }

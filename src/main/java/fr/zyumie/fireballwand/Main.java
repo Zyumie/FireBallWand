@@ -11,14 +11,23 @@ import fr.zyumie.Commandes.WinCharge_Boosted;
 import fr.zyumie.Commandes.firewand;
 import fr.zyumie.Commandes.kickarmor;
 import fr.zyumie.Chat.ChatManager;
+import fr.zyumie.Listener.StartKitManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
 import fr.zyumie.SoftDepend.LuckPermsHook;
-import fr.zyumie.Vanish.ServerListListener;
+import fr.zyumie.TPA.TpaCommand;
+import fr.zyumie.Vanish.Listener.ServerListListener;
 import fr.zyumie.Vanish.VanishCommand;
-import fr.zyumie.Vanish.VanishListener;
-import fr.zyumie.Vanish.VanishManager;
+import fr.zyumie.Vanish.Listener.VanishListener;
+import fr.zyumie.Vanish.Listener.VanishManager;
 
+import fr.zyumie.TPA.Listener.TpaConfigManager;
+import fr.zyumie.TPA.Listener.TpaManager;
+import fr.zyumie.TPA.Listener.TpaTeleportManager;
+import fr.zyumie.TPA.Listener.TpaInvincibilityManager;
+import fr.zyumie.TPA.Listener.TpaListener;
+
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -26,11 +35,17 @@ public class Main extends JavaPlugin {
     private LuckPermsHook    luckPermsHook;
     private ItemsAdderHook   itemsAdderHook;
     private VanishManager    vanishManager;
+    private ConfigManager    customConfigManager;
+
+    private TpaConfigManager tpaConfigManager;
+    private TpaManager tpaManager;
+    private TpaTeleportManager tpaTeleportManager;
+    private TpaInvincibilityManager tpaInvincibilityManager;
 
     @Override
     public void onEnable() {
-        // Config
-        saveDefaultConfig();
+        // Config Manager personnalisé (Gère config.yml, Vanish.yml, CustomCheat.yml)
+        customConfigManager = new ConfigManager(this);
 
         // ── Soft depends ─────────────────────────────────────────────────────
         if (getServer().getPluginManager().getPlugin("LuckPerms") != null) {
@@ -52,6 +67,39 @@ public class Main extends JavaPlugin {
         if (getCommand("vanish") != null) getCommand("vanish").setExecutor(new VanishCommand(this));
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new ServerListListener(this), this);
+
+        // ── TPA System ───────────────────────────────────────────────────────
+        this.tpaConfigManager = new TpaConfigManager(this);
+        this.tpaManager = new TpaManager(this);
+        this.tpaTeleportManager = new TpaTeleportManager(this);
+        this.tpaInvincibilityManager = new TpaInvincibilityManager(this);
+
+        TpaCommand tpaCommand = new TpaCommand(this);
+
+        if (getCommand("tpa") != null) {
+            getCommand("tpa").setExecutor(tpaCommand);
+            getCommand("tpa").setTabCompleter(tpaCommand);
+        }
+        if (getCommand("tpahere") != null) {
+            getCommand("tpahere").setExecutor(tpaCommand);
+            getCommand("tpahere").setTabCompleter(tpaCommand);
+        }
+        if (getCommand("tpaccept") != null) {
+            getCommand("tpaccept").setExecutor(tpaCommand);
+            getCommand("tpaccept").setTabCompleter(tpaCommand);
+        }
+        if (getCommand("tpdeny") != null) {
+            getCommand("tpdeny").setExecutor(tpaCommand);
+            getCommand("tpdeny").setTabCompleter(tpaCommand);
+        }
+        if (getCommand("tpacancel") != null) {
+            getCommand("tpacancel").setExecutor(tpaCommand);
+        }
+        if (getCommand("tpareload") != null) {
+            getCommand("tpareload").setExecutor(tpaCommand);
+        }
+
+        getServer().getPluginManager().registerEvents(new TpaListener(this), this);
 
         // ── Commandes ────────────────────────────────────────────────────────
         firewand firewandCmd = new firewand(this);
@@ -87,6 +135,14 @@ public class Main extends JavaPlugin {
         if (getCommand("msg") != null) getCommand("msg").setExecutor(msgCommand);
         if (getCommand("reply") != null) getCommand("reply").setExecutor(msgCommand);
 
+        // ── Kit de Départ ───────────────────────────────────────────────────
+        StartKitManager startKitManager = new StartKitManager(this);
+        getServer().getPluginManager().registerEvents(startKitManager, this);
+
+        if (getCommand("starterkit") != null) {
+            getCommand("starterkit").setExecutor(startKitManager);
+        }
+
         // ── Listeners généraux ───────────────────────────────────────────────
         getServer().getPluginManager().registerEvents(new ChatManager(this), this);
 
@@ -101,6 +157,10 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if (vanishManager != null) vanishManager.clear();
+        if (tpaTeleportManager != null) tpaTeleportManager.cancelAll();
+        if (tpaInvincibilityManager != null) tpaInvincibilityManager.clearAll();
+        if (tpaManager != null) tpaManager.saveCooldownsSync();
+
         getLogger().info("════════════════════════════════════");
         getLogger().info("🔥 FireBallWand désactivé... :(");
         getLogger().info("════════════════════════════════════");
@@ -111,6 +171,23 @@ public class Main extends JavaPlugin {
     public VanishManager  getVanishManager()    { return vanishManager;    }
     public LuckPermsHook  getLuckPermsHook()    { return luckPermsHook;    }
     public ItemsAdderHook getItemsAdderHook()   { return itemsAdderHook;   }
+
+    public FileConfiguration getVanishConfig() {
+        return customConfigManager.getVanishConfig();
+    }
+
+    public FileConfiguration getCustomCheatConfig() {
+        return customConfigManager.getCustomCheatConfig();
+    }
+
+    public FileConfiguration getStartKitConfig() {
+        return customConfigManager.getStartKitConfig();
+    }
+
+    public TpaConfigManager        getTpaConfigManager()       { return tpaConfigManager; }
+    public TpaManager              getTpaManager()             { return tpaManager; }
+    public TpaTeleportManager      getTpaTeleportManager()     { return tpaTeleportManager; }
+    public TpaInvincibilityManager getTpaInvincibilityManager() { return tpaInvincibilityManager; }
 
     // ── Startup log ──────────────────────────────────────────────────────────
 

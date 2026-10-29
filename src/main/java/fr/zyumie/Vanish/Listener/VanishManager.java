@@ -1,4 +1,4 @@
-package fr.zyumie.Vanish;
+package fr.zyumie.Vanish.Listener;
 
 import fr.zyumie.Chat.ChatManager;
 import org.bukkit.Bukkit;
@@ -36,7 +36,7 @@ public class VanishManager {
 
     public VanishManager(Main plugin) {
         this.plugin = plugin;
-        this.maxLevel = plugin.getConfig().getInt("vanish.max-level", 10);
+        this.maxLevel = plugin.getVanishConfig().getInt("vanish.max-level", 10);
     }
 
     // ── Niveau ──────────────────────────────────────────────────────────────

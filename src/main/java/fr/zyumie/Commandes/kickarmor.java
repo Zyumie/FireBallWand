@@ -26,24 +26,19 @@ public class kickarmor implements Listener, CommandExecutor {
     public kickarmor(Main plugin) {
         this.plugin = plugin;
         this.armorKey = new NamespacedKey(plugin, "armor_id");
-        // Enregistre automatiquement les événements auprès du PluginManager
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
-
-    // ── Événements ───────────────────────────────────────────────────────────
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         Player wearer = event.getPlayer();
 
-        // Ignorer si le joueur tourne seulement la tête sans changer de bloc
         if (event.getFrom().getBlockX() == event.getTo().getBlockX()
                 && event.getFrom().getBlockY() == event.getTo().getBlockY()
                 && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
 
-        // Vérification du plastron porté
         ItemStack chest = wearer.getInventory().getChestplate();
         if (chest == null || chest.getType() != Material.DIAMOND_CHESTPLATE) return;
 
@@ -54,11 +49,10 @@ public class kickarmor implements Listener, CommandExecutor {
         String id = data.get(armorKey, PersistentDataType.STRING);
         if (id == null || !id.equals("KICK_ARMOR")) return;
 
-        double radius = plugin.getConfig().getDouble("kickarmor.radius", 3.0);
+        double radius = plugin.getCustomCheatConfig().getDouble("kickarmor.radius", 3.0);
         String kickMsg = ChatManager.colorize(
-                plugin.getConfig().getString("kickarmor.kick-message", "&cTrop près d'un joueur protégé."));
+                plugin.getCustomCheatConfig().getString("kickarmor.kick-message", "&cTrop près d'un joueur protégé."));
 
-        // Récupère uniquement les entités dans la zone (beaucoup plus rapide que de scanner tout le serveur)
         for (Entity entity : wearer.getNearbyEntities(radius, radius, radius)) {
             if (entity instanceof Player target) {
                 if (target.equals(wearer) || target.isOp()) continue;
@@ -67,8 +61,6 @@ public class kickarmor implements Listener, CommandExecutor {
             }
         }
     }
-
-    // ── Commande ─────────────────────────────────────────────────────────────
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -83,7 +75,7 @@ public class kickarmor implements Listener, CommandExecutor {
         }
 
         String name = ChatManager.colorize(
-                plugin.getConfig().getString("kickarmor.name", "&cPlastron du Kick"));
+                plugin.getCustomCheatConfig().getString("kickarmor.name", "&cPlastron du Kick"));
 
         ItemStack chest = new ItemStack(Material.DIAMOND_CHESTPLATE);
         ItemMeta meta = chest.getItemMeta();

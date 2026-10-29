@@ -1,6 +1,6 @@
 name: FireballWand
 main: fr.zyumie.fireballwand.Main
-version: 3.5.0
+version: ${Version}
 api-version: '1.21'
 author: Zyumie
 softdepend: [LuckPerms, ItemsAdder]
@@ -57,6 +57,11 @@ commands:
     aliases: [ pod ]
     permission: fireballwand.potion-of-death
 
+  starterkit:
+    description: Récupérer le kit de départ.
+    usage: /starterkit
+    permission: fireballwand.starterkit
+
   msg:
     description: Envoyer un message privé
     usage: /msg <joueur> <message>
@@ -71,6 +76,39 @@ commands:
     description: Active/désactive le vanish
     usage: /vanish [joueur]
     permission: fireballwand.vanish.level.1
+
+  # ── Commandes TPA ──────────────────────────────────────────────────────────
+  tpa:
+    description: Envoyer une demande de téléportation à un joueur.
+    usage: /tpa <joueur>
+    permission: fireballwand.tpa
+
+  tpahere:
+    description: Demander à un joueur de se téléporter vers vous.
+    usage: /tpahere <joueur>
+    permission: fireballwand.tpahere
+
+  tpaccept:
+    description: Accepter une demande de téléportation en attente.
+    usage: /tpaccept [joueur]
+    aliases: [tpyes]
+    permission: fireballwand.tpa
+
+  tpdeny:
+    description: Refuser une demande de téléportation en attente.
+    usage: /tpdeny [joueur]
+    aliases: [tpno]
+    permission: fireballwand.tpa
+
+  tpacancel:
+    description: Annuler votre demande de téléportation envoyée.
+    usage: /tpacancel
+    permission: fireballwand.tpa
+
+  tpareload:
+    description: Recharger la configuration du TPA.
+    usage: /tpareload
+    permission: fireballwand.tpa.admin
 
 permissions:
 
@@ -119,9 +157,39 @@ permissions:
     description: Permet de se give la Potion of Death
     default: op
 
-    fireballwand.potion-of-death.bypass:
-      description: Immunise contre la Potion of Death
-      default: op
+  fireballwand.potion-of-death.bypass:
+    description: Immunise contre la Potion of Death
+    default: op
+
+  # ── Kit / StartKit ─────────────────────────────────────────────────────────
+  fireballwand.starterkit:
+    description: Permet de réclamer le kit de départ avec /starter.
+    default: true
+
+  fireballwand.starterkit.bypass:
+    description: Permet d'ignorer le cooldown du kit de départ.
+    default: op
+
+  # ── TPA ────────────────────────────────────────────────────────────────────
+  fireballwand.tpa:
+    description: Permet d'utiliser les commandes TPA de base.
+    default: true
+
+  fireballwand.tpahere:
+    description: Permet d'utiliser la commande /tpahere.
+    default: true
+
+  fireballwand.tpa.admin:
+    description: Permet de recharger la configuration du TPA.
+    default: op
+
+  fireballwand.tpa.bypass.cooldown:
+    description: Permet de contourner le cooldown du TPA.
+    default: op
+
+  fireballwand.tpa.bypass.warmup:
+    description: Permet de contourner le temps d'attente avant téléportation.
+    default: op
 
   # ── Chat ───────────────────────────────────────────────────────────────────
   fireballwand.chat.color:

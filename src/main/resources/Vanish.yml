@@ -1,0 +1,31 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  VANISH CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Niveau maximum scanné (fireballwand.vanish.level.N de 1 à max-level)
+max-level: 10
+
+# Action bar affichée tant que le joueur est en vanish
+actionbar:
+  enabled: true
+  message: "&8[ &7Vous êtes actuellement en vanish &8]"
+  # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
+  interval: 40
+
+# Double-sneak pour basculer en mode spectateur (et retour)
+spectator-on-sneak:
+  enabled: true
+  # Délai max en ms entre les deux sneaks pour valider le double-sneak
+  double-sneak-delay: 400
+
+# Messages
+messages:
+  enable: "&aVanish activé. &7(niveau &f%level%&7)"
+  disable: "&cVanish désactivé."
+  enable-other: "&aTon vanish a été activé par &f%player%&a."
+  disable-other: "&cTon vanish a été désactivé par &f%player%&c."
+  no-permission: "&cTu n'as pas la permission d'utiliser le vanish."
+  no-permission-other: "&c%player% n'a pas la permission d'utiliser le vanish."
+  player-not-found: "&cJoueur introuvable : &f%player%"
+  spectator-on: "&7[Vanish] &aMode spectateur activé."
+  spectator-off: "&7[Vanish] &cMode spectateur désactivé."

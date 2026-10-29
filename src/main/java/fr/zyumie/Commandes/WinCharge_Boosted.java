@@ -1,5 +1,6 @@
 package fr.zyumie.Commandes;
 
+import fr.zyumie.fireballwand.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,33 +22,31 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
 public class WinCharge_Boosted implements Listener, CommandExecutor {
 
-    private final JavaPlugin plugin;
+    private final Main plugin;
     private final NamespacedKey winchargeKey;
-    private final NamespacedKey winchargeDeathKey; // Tag temporaire pour conserver l'inventaire à la mort
+    private final NamespacedKey winchargeDeathKey;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
-    public WinCharge_Boosted(JavaPlugin plugin) {
+    public WinCharge_Boosted(Main plugin) {
         this.plugin = plugin;
         this.winchargeKey = new NamespacedKey(plugin, "wincharge_boosted");
         this.winchargeDeathKey = new NamespacedKey(plugin, "wincharge_death_tag");
     }
 
-    // --- CRÉATION DE L'ITEM ---
     public ItemStack createWinchargeItem() {
         ItemStack item = new ItemStack(Material.WIND_CHARGE);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            String name = plugin.getConfig().getString("wincharge.name", "&eWincharge &6Boosted");
+            String name = plugin.getCustomCheatConfig().getString("wincharge.name", "&eWincharge &6Boosted");
             meta.setDisplayName(formatColor(name));
 
-            List<String> lore = plugin.getConfig().getStringList("wincharge.lore");
+            List<String> lore = plugin.getCustomCheatConfig().getStringList("wincharge.lore");
             List<String> formattedLore = new ArrayList<>();
             for (String line : lore) {
                 formattedLore.add(formatColor(line));
@@ -61,7 +60,6 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
         return item;
     }
 
-    // --- DÉTECTION DU TIR & COOLDOWN ---
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         if (!(event.getEntity() instanceof WindCharge windCharge)) return;
@@ -73,14 +71,13 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
             if (!isWinchargeItem(item)) return;
         }
 
-        // Vérification de la permission de tir
         if (!player.hasPermission("fireballwand.wincharge_boosted")) {
             player.sendMessage(formatColor("&c❌ Tu n'as pas la permission d'utiliser la Wincharge Boosted."));
             event.setCancelled(true);
             return;
         }
 
-        int cooldownSeconds = plugin.getConfig().getInt("wincharge.cooldown", 5);
+        int cooldownSeconds = plugin.getCustomCheatConfig().getInt("wincharge.cooldown", 5);
         long currentTime = System.currentTimeMillis();
 
         if (cooldowns.containsKey(player.getUniqueId())) {
@@ -89,7 +86,7 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
 
             if (timePassed < cooldownSeconds) {
                 long timeLeft = cooldownSeconds - timePassed;
-                String msg = plugin.getConfig().getString("wincharge.messages.cooldown", "&c❌ Attends encore %seconds%s !")
+                String msg = plugin.getCustomCheatConfig().getString("wincharge.messages.cooldown", "&c❌ Attends encore %seconds%s !")
                         .replace("%seconds%", String.valueOf(timeLeft));
                 player.sendMessage(formatColor(msg));
                 event.setCancelled(true);
@@ -101,7 +98,6 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
         windCharge.getPersistentDataContainer().set(winchargeKey, PersistentDataType.BYTE, (byte) 1);
     }
 
-    // --- IMPACT : EXPLOSION & MORT UNIQUEMENT DES JOUEURS ---
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof WindCharge windCharge)) return;
@@ -116,10 +112,9 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
             loc = event.getHitEntity().getLocation();
         }
 
-        double radius = plugin.getConfig().getDouble("wincharge.radius", 2.5);
-        int particleCount = plugin.getConfig().getInt("wincharge.particles-count", 3);
+        double radius = plugin.getCustomCheatConfig().getDouble("wincharge.radius", 2.5);
+        int particleCount = plugin.getCustomCheatConfig().getInt("wincharge.particles-count", 3);
 
-        // Effets visuels et sonores (aucun dégât aux blocs)
         loc.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, loc, particleCount, 0.2, 0.2, 0.2, 0);
         loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 
@@ -127,21 +122,16 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
         Player shooter = (windCharge.getShooter() instanceof Player) ? (Player) windCharge.getShooter() : null;
 
         for (Entity entity : nearby) {
-            // 🎯 UNIQUEMENT LES JOUEURS (les mobs sont ignorés)
             if (entity instanceof Player victim) {
-
-                // Empêche le tireur de se tuer lui-même
                 if (shooter != null && victim.equals(shooter)) continue;
 
-                // 🛡️ BYPASS : Les OP ou les joueurs avec la permission ne meurent pas !
                 if (victim.isOp() || victim.hasPermission("fireballwand.wincharge.bypass")) {
                     continue;
                 }
 
-                // Marque la victime pour activer le KeepInventory à sa mort
                 victim.getPersistentDataContainer().set(winchargeDeathKey, PersistentDataType.BYTE, (byte) 1);
 
-                String msg = plugin.getConfig().getString("wincharge.messages.killed", "&c⚡ Tu as été exterminé !");
+                String msg = plugin.getCustomCheatConfig().getString("wincharge.messages.killed", "&c⚡ Tu as été exterminé !");
                 victim.sendMessage(formatColor(msg));
 
                 victim.setHealth(0.0);
@@ -152,7 +142,6 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
         event.setCancelled(true);
     }
 
-    // --- GESTION DU KEEP INVENTORY ---
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
@@ -163,11 +152,10 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
             event.setKeepLevel(true);
             event.getDrops().clear();
             event.setDroppedExp(0);
-            pdc.remove(winchargeDeathKey); // Retire le tag
+            pdc.remove(winchargeDeathKey);
         }
     }
 
-    // --- COMMANDE : /wincharge_boosted ---
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -181,7 +169,7 @@ public class WinCharge_Boosted implements Listener, CommandExecutor {
         }
 
         player.getInventory().addItem(createWinchargeItem());
-        String msg = plugin.getConfig().getString("wincharge.messages.given", "&aTu as reçu la Wincharge Boosted !");
+        String msg = plugin.getCustomCheatConfig().getString("wincharge.messages.given", "&aTu as reçu la Wincharge Boosted !");
         player.sendMessage(formatColor(msg));
 
         return true;

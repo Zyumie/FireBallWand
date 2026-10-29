@@ -36,7 +36,7 @@ public class cheatmace implements CommandExecutor {
         }
 
         String name = ChatManager.colorize(
-                plugin.getConfig().getString("cheats.mace.name", "&6Mace Cheater"));
+                plugin.getCustomCheatConfig().getString("cheats.mace.name", "&6Mace Cheater"));
 
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();

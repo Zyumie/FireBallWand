@@ -1,0 +1,95 @@
+# ==========================================
+#        FireBallWand - StartKit Config
+#                by Zyumie
+# ==========================================
+
+settings:
+  # Activer ou désactiver l'attribution du kit à la première connexion
+  give-on-first-join: true
+
+  # Commande autorisée pour réclamer le kit (/starterkit)
+  command-enabled: true
+
+  # Cooldown pour la commande /starterkit (en secondes, ex: 86400s = 24h). Mettre 0 pour kit unique.
+  cooldown: 86400
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  EQUIPEMENT DE DÉPART (INTERMÉDIAIRE)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+kit:
+  name: "&b&lKit Aventurier"
+
+  # Message envoyé lors de la réception du kit
+  message: "&aVous avez reçu votre &bKit Aventurier &ade départ !"
+  message-cooldown: "&cVous devez attendre &e{time} &cavants de pouvoir récupérer ce kit à nouveau."
+
+  # Armure
+  armor:
+    helmet:
+      material: "IRON_HELMET"
+      name: "&bCasque d'Aventurier"
+      enchantments:
+        - "PROTECTION:2"
+        - "UNBREAKING:1"
+
+    chestplate:
+      material: "IRON_CHESTPLATE"
+      name: "&bPlastron d'Aventurier"
+      enchantments:
+        - "PROTECTION:2"
+        - "UNBREAKING:2"
+
+    leggings:
+      material: "IRON_LEGGINGS"
+      name: "&bJambières d'Aventurier"
+      enchantments:
+        - "PROTECTION:2"
+        - "UNBREAKING:1"
+
+    boots:
+      material: "IRON_BOOTS"
+      name: "&bBottes d'Aventurier"
+      enchantments:
+        - "PROTECTION:2"
+        - "FEATHER_FALLING:2"
+
+  # Outils & Armes
+  items:
+    - material: "DIAMOND_SWORD"
+      amount: 1
+      name: "&eLame du Nomade"
+      lore:
+        - "&7Arme forgée pour survivre"
+        - "&7dans le monde sauvage."
+      enchantments:
+        - "SHARPNESS:2"
+        - "UNBREAKING:2"
+
+    - material: "DIAMOND_PICKAXE"
+      amount: 1
+      name: "&ePioche de Prospecteur"
+      enchantments:
+        - "EFFICENCY:2"
+        - "UNBREAKING:2"
+
+    - material: "IRON_AXE"
+      amount: 1
+      name: "&fHache d'Explorateur"
+      enchantments:
+        - "EFFICENCY:2"
+
+    - material: "COOKED_BEEF"
+      amount: 32
+      name: "&6Rations de Voyage"
+
+    - material: "GOLDEN_APPLE"
+      amount: 4
+
+    - material: "TORCH"
+      amount: 64
+
+    - material: "SHIELD"
+      amount: 1
+      name: "&7Bouclier Renforcé"
+      enchantments:
+        - "UNBREAKING:1"

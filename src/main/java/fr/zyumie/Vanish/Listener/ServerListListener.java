@@ -1,4 +1,4 @@
-package fr.zyumie.Vanish;
+package fr.zyumie.Vanish.Listener;
 
 import fr.zyumie.fireballwand.Main;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;

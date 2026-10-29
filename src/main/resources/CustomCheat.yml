@@ -1,0 +1,78 @@
+# ==========================================
+#          FireBallWand - CustomCheats
+#          Armes, Armures et Items Spéciaux
+# ==========================================
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  POTION OF DEATH
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+potion-of-death:
+  name: "&4&l☠ Potion of Death ☠"
+  lore:
+    - "&7Un clic pour envoyer n'importe qui"
+    - "&7dans l'au-delà (même en Créatif !)"
+    - "&8Inventaire conservé."
+  broadcast:
+    enabled: true
+  messages:
+    given: "&aTu as reçu la Potion of Death !"
+    no-permission: "&c❌ Tu n'as pas la permission d'utiliser cette commande."
+    bypass: "&a🛡 Tu as résisté à la Potion of Death grâce à tes privilèges !"
+    victim-killed: "&c⚡ Tu as été exterminé par une Potion of Death !"
+    broadcast-killed: "&4☠ %player% a été terrassé par une Potion of Death !"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  FIREWAND
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+firewand:
+  name: "&cBâton de Feu"
+  yield: 50.0
+  incendiary: true
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  FREEZEWAND
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+freezewand:
+  name: "&bBâton de Glace"
+  messages:
+    frozen: "&cTu es gelé."
+    unfrozen: "&aTu es dégelé."
+    target-frozen: "&bJoueur gelé."
+    target-unfrozen: "&bJoueur dégelé."
+    op-immune: "&c❌ Impossible de geler un OP."
+    all-unfrozen: "&b❄ Tous les joueurs ont été dégelés !"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  KICK ARMOR
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+kickarmor:
+  name: "&cPlastron du Kick"
+  radius: 3.0
+  kick-message: "Trop près d'un joueur protégé."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  WINCHARGE BOOSTED
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+wincharge:
+  name: "&eWincharge &6Boosted"
+  lore:
+    - "&7Une charge explosive mortelle !"
+    - "&cExtermine instantanément la cible."
+  radius: 2.5
+  particles-count: 3
+  cooldown: 5 # Temps de recharge en secondes
+  messages:
+    cooldown: "&c❌ Attends encore %seconds%s avant d'utiliser la Wincharge Boosted."
+    given: "&aTu as reçu une &eWincharge &6Boosted &a!"
+    killed: "&c⚡ Tu as été exterminé par une Wincharge Boosted !"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  CHEATS (Épée, Mace & Armure)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cheats:
+  sword:
+    name: "&4Épée Cheater"
+  mace:
+    name: "&6Mace Cheater"
+  armor:
+    name: "&4Armor Cheat"

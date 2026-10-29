@@ -1,0 +1,80 @@
+# ==========================================
+#          Configuration du TPA
+# ==========================================
+
+# Préfixe pour tous les messages TPA
+prefix: "&8[&bTPA&8] &r"
+
+# Paramètres des délais (en secondes)
+cooldowns:
+  # Temps d'attente entre chaque téléportation TPA réussie (10 minutes = 600 secondes)
+  tpa: 600
+
+# Durée de validité d'une demande envoyée (en secondes)
+request-expiration-seconds: 60
+
+# Paramètres du temps d'attente avant téléportation (warmup)
+warmup:
+  # Durée d'immobilité requise avant le saut (en secondes)
+  seconds: 3
+  # Annuler si le joueur se déplace
+  cancel-on-move: true
+  # Annuler si le joueur prend des dégâts
+  cancel-on-damage: true
+
+# Paramètres d'invulnérabilité post-téléportation
+invincibility:
+  # Durée de l'invincibilité après téléportation (en secondes)
+  seconds: 30
+  # Afficher le temps restant dans l'ActionBar
+  show-actionbar: true
+  # Retirer l'invincibilité si le joueur attaque quelqu'un (PvP)
+  cancel-on-pvp: true
+
+# Sons et effets
+effects:
+  play-sounds: true
+  spawn-particles: true
+
+# Messages
+messages:
+  no-permission: "&cVous n'avez pas la permission d'exécuter cette commande."
+  only-players: "&cSeuls les joueurs peuvent utiliser cette commande."
+  player-not-found: "&cLe joueur spécifié est introuvable ou hors-ligne."
+  cannot-tpa-self: "&cVous ne pouvez pas vous téléporter à vous-même !"
+  tpa-usage: "&cUtilisation : &e/tpa <joueur>"
+  tpahere-usage: "&cUtilisation : &e/tpahere <joueur>"
+
+  tpa-cooldown: "&cVous devez attendre encore &e{time} &cavant de pouvoir réutiliser /tpa."
+
+  already-pending: "&cVous avez déjà une demande de téléportation en attente pour ce joueur."
+  request-sent: "&aDemande de téléportation envoyée à &e{target}&a. &7(Expire dans {expire}s)"
+  request-sent-here: "&aDemande /tpahere envoyée à &e{target}&a. &7(Expire dans {expire}s)"
+  request-received: "&e{sender} &6souhaite se téléporter à vous !"
+  request-received-here: "&e{sender} &6souhaite que vous vous télépiez à lui !"
+
+  request-expired-sender: "&cLa demande de téléportation envoyée à &e{target} &ca expiré."
+  request-expired-target: "&cLa demande de téléportation de &e{sender} &ca expiré."
+
+  no-request-to-cancel: "&cVous n'avez aucune demande de téléportation en cours à annuler."
+  request-cancelled: "&eDemande de téléportation vers &6{target} &eannulée."
+
+  no-pending-requests: "&cVous n'avez aucune demande de téléportation en attente."
+  request-accepted-target: "&aVous avez accepté la demande de téléportation de &e{sender}&a."
+  request-accepted-sender: "&e{target} &aa accepté votre demande de téléportation !"
+
+  request-denied-target: "&eVous avez refusé la demande de téléportation de &c{sender}&e."
+  request-denied-sender: "&c{target} a refusé votre demande de téléportation."
+
+  warmup-start: "&eTéléportation dans &6{seconds} secondes&e... Ne bougez pas !"
+  warmup-cancelled-move: "&cTéléportation annulée : vous avez bougé !"
+  warmup-cancelled-damage: "&cTéléportation annulée : vous avez subi des dégâts !"
+  warmup-cancelled-target-moved: "&cTéléportation annulée : la cible s'est déconnectée."
+  teleport-success: "&aTéléportation réussie !"
+
+  invincibility-start: "&aVous êtes &6invulnérable pendant {seconds} secondes &a!"
+  invincibility-end: "&cVotre invulnérabilité a expiré."
+  invincibility-actionbar: "&b✦ Protection : &e{seconds}s &b✦"
+  invincibility-pvp-lost: "&cVotre invulnérabilité a été retirée car vous avez attaqué !"
+
+  config-reloaded: "&aLa configuration du TPA a été rechargée avec succès !"

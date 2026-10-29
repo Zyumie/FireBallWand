@@ -32,23 +32,18 @@ public class freezewand implements Listener, CommandExecutor {
     public freezewand(Main plugin) {
         this.plugin = plugin;
         this.wandKey = new NamespacedKey(plugin, "freeze_wand");
-        // Enregistre automatiquement les événements auprès du PluginManager
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    // ── Helpers Config ───────────────────────────────────────────────────────
-
     private String getWandName() {
         return ChatManager.colorize(
-                plugin.getConfig().getString("freezewand.name", "&bBâton de Glace"));
+                plugin.getCustomCheatConfig().getString("freezewand.name", "&bBâton de Glace"));
     }
 
     private String getMsg(String key, String fallback) {
         return ChatManager.colorize(
-                plugin.getConfig().getString("freezewand.messages." + key, fallback));
+                plugin.getCustomCheatConfig().getString("freezewand.messages." + key, fallback));
     }
-
-    // ── Commandes ────────────────────────────────────────────────────────────
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -57,7 +52,6 @@ public class freezewand implements Listener, CommandExecutor {
             return true;
         }
 
-        // Commande /unfreezewand-all
         if (command.getName().equalsIgnoreCase("unfreezewand-all")) {
             if (!player.hasPermission("fireballwand.unfreezewand")) {
                 player.sendMessage(getMsg("no-perm-cmd", "§cTu n'as pas la permission d'utiliser cette commande."));
@@ -69,7 +63,6 @@ public class freezewand implements Listener, CommandExecutor {
             return true;
         }
 
-        // Commande /freezewand
         if (!player.hasPermission("fireballwand.freezewand")) {
             player.sendMessage(getMsg("no-perm-item", "§cTu n'as pas la permission d'utiliser cet item."));
             return true;
@@ -94,8 +87,6 @@ public class freezewand implements Listener, CommandExecutor {
         player.sendMessage("§aTu as reçu le " + getWandName() + "§a !");
     }
 
-    // ── Événements ───────────────────────────────────────────────────────────
-
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player damager)) return;
@@ -104,10 +95,8 @@ public class freezewand implements Listener, CommandExecutor {
         ItemStack itemInHand = damager.getInventory().getItemInMainHand();
         if (!isFreezeWand(itemInHand)) return;
 
-        // Annule les dégâts de l'épée
         event.setCancelled(true);
 
-        // Immunité Administrateur (OP)
         if (target.isOp()) {
             damager.sendMessage(getMsg("op-immune", "&c❌ Impossible de geler un OP."));
             return;
@@ -135,17 +124,13 @@ public class freezewand implements Listener, CommandExecutor {
 
         if (to == null) return;
 
-        // Si le joueur tente un déplacement X, Y ou Z
         if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-            // Maintient la position physique mais conserve la rotation de la tête
             Location freezeLoc = from.clone();
             freezeLoc.setYaw(to.getYaw());
             freezeLoc.setPitch(to.getPitch());
             event.setTo(freezeLoc);
         }
     }
-
-    // ── Utilitaires ──────────────────────────────────────────────────────────
 
     private boolean isFreezeWand(ItemStack item) {
         if (item == null || item.getType() != Material.STONE_SWORD) return false;
