@@ -10,6 +10,7 @@
 #  MESSAGE DE BIENVENUE
 #  Affiché uniquement à la première connexion du joueur.
 #  Codes couleur : &a &c &f etc. + codes HEX &#RRGGBB
+#  Placeholders PlaceholderAPI supportés (ex: %server_online%)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 welcome:
   enabled: true
@@ -24,12 +25,22 @@ chat:
   #   %player%  → nom du joueur
   #   %suffix%  → suffix LuckPerms (vide si absent)
   #   %message% → contenu du message
+  # Tout placeholder PlaceholderAPI est aussi accepté
+  # (ex: %vault_eco_balance_formatted%, %player_world%).
   format: "%prefix%%player%%suffix% &7: &f%message%"
 
   # Couleurs dans le chat
   # La permission fireballwand.chat.color doit être accordée pour &codes classiques.
   # La permission fireballwand.chat.color.hex pour les codes &#RRGGBB.
   color:
+    enabled: true
+
+  # Intégration PlaceholderAPI
+  # Nécessite PlaceholderAPI en soft-depend.
+  # Parse le format, le préfix/suffix et le message de bienvenue.
+  # Les placeholders tapés par un joueur dans son message ne sont parsés
+  # que s'il a la permission fireballwand.chat.placeholders.
+  placeholderapi:
     enabled: true
 
   # Intégration ItemsAdder (grades en image dans le chat)

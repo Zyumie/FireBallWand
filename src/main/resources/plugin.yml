@@ -3,7 +3,7 @@ main: fr.zyumie.fireballwand.Main
 version: ${version}
 api-version: '1.21'
 author: Zyumie
-softdepend: [LuckPerms, ItemsAdder]
+softdepend: [LuckPerms, ItemsAdder, PlaceholderAPI]
 
 commands:
 

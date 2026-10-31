@@ -22,6 +22,8 @@ public class ChatManager implements Listener {
     // Pattern couleurs classiques : &x
     private static final Pattern COLOR_PATTERN = Pattern.compile("&[0-9a-fA-FkKlLmMnNoOrR]");
 
+    private static final String MESSAGE_TOKEN = "\u0000MSG\u0000";
+
     public ChatManager(Main plugin) {
         this.plugin = plugin;
     }
@@ -42,6 +44,13 @@ public class ChatManager implements Listener {
 
         // Puis &codes classiques
         return ChatColor.translateAlternateColorCodes('&', buf.toString());
+    }
+
+    private String papi(Player player, String text) {
+        if (text == null) return "";
+        if (plugin.getPlaceholderAPIHook() == null || !plugin.getPlaceholderAPIHook().isAvailable()) return text;
+        if (!plugin.getConfig().getBoolean("chat.placeholderapi.enabled", true)) return text;
+        return plugin.getPlaceholderAPIHook().parse(player, text);
     }
 
     // ---------------------------------------------------------------
@@ -92,17 +101,17 @@ public class ChatManager implements Listener {
 
         // ── Vanish ──
         if (plugin.getVanishManager().isVanished(player)) {
-            String suffix  = plugin.getConfig().getString("chat.vanish-chat-suffix", "/");
+            String vSuffix = plugin.getConfig().getString("chat.vanish-chat-suffix", "/");
             String warning = plugin.getConfig().getString("chat.vanish-chat-warning",
                     "&7[Vanish] &cMettez &f/ &cen fin de message pour envoyer.");
 
-            if (!event.getMessage().endsWith(suffix)) {
+            if (!event.getMessage().endsWith(vSuffix)) {
                 event.setCancelled(true);
                 player.sendMessage(colorize(warning));
                 return;
             }
             event.setMessage(event.getMessage()
-                    .substring(0, event.getMessage().length() - suffix.length()).stripTrailing());
+                    .substring(0, event.getMessage().length() - vSuffix.length()).stripTrailing());
         }
 
         // ── Prefix / Suffix LuckPerms ──
@@ -114,26 +123,24 @@ public class ChatManager implements Listener {
         }
 
         // ── Message joueur ──
-        String message = colorizeWithPermission(player, event.getMessage());
+        String rawMessage = event.getMessage();
+        if (player.hasPermission("fireballwand.chat.placeholders")) {
+            rawMessage = papi(player, rawMessage);
+        }
+        String message = colorizeWithPermission(player, rawMessage);
 
-        // ── Appliquer ItemsAdder sur Prefix, Suffix ET Message ──
-        if (plugin.getItemsAdderHook() != null
+        boolean ia = plugin.getItemsAdderHook() != null
                 && plugin.getItemsAdderHook().isAvailable()
-                && plugin.getConfig().getBoolean("chat.itemsadder.enabled", true)) {
+                && plugin.getConfig().getBoolean("chat.itemsadder.enabled", true);
 
-            // 1. Remplacement des images (:img_admin:) D'ABORD
+        if (ia) {
             prefix  = plugin.getItemsAdderHook().replaceFontImages(prefix);
             suffix  = plugin.getItemsAdderHook().replaceFontImages(suffix);
             message = plugin.getItemsAdderHook().replaceFontImages(message);
         }
 
-        // 2. Coloriser préfixe/suffixe APRES ItemsAdder
-        prefix = colorize(prefix);
-        suffix = colorize(suffix);
-
         event.setMessage(message);
 
-        // ── Format final ──
         String format = plugin.getConfig().getString("chat.format",
                 "%prefix%%player%%suffix% &7: &f%message%");
 
@@ -141,11 +148,17 @@ public class ChatManager implements Listener {
                 .replace("%prefix%",  prefix)
                 .replace("%player%",  player.getName())
                 .replace("%suffix%",  suffix)
-                .replace("%message%", "%2$s"); // Placeholder Bukkit pour le message
+                .replace("%message%", MESSAGE_TOKEN);
 
-        format = format.replaceAll("%(?!(1\\$s|2\\$s))", "%%");
+        format = papi(player, format);
+
+        if (ia) {
+            format = plugin.getItemsAdderHook().replaceFontImages(format);
+        }
 
         format = colorize(format);
+
+        format = format.replace("%", "%%").replace(MESSAGE_TOKEN, "%2$s");
 
         event.setFormat(format);
     }

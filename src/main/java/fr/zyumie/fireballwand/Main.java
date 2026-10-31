@@ -13,6 +13,7 @@ import fr.zyumie.Listener.StartKitManager;
 import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
 import fr.zyumie.SoftDepend.LuckPermsHook;
+import fr.zyumie.SoftDepend.PlaceholderAPIHook;
 import fr.zyumie.TPA.TpaCommand;
 import fr.zyumie.Vanish.Listener.ServerListListener;
 import fr.zyumie.Vanish.VanishCommand;
@@ -32,6 +33,7 @@ public class Main extends JavaPlugin {
 
     private LuckPermsHook    luckPermsHook;
     private ItemsAdderHook   itemsAdderHook;
+    private PlaceholderAPIHook placeholderAPIHook;
     private VanishManager    vanishManager;
     private ConfigManager    customConfigManager;
 
@@ -63,6 +65,13 @@ public class Main extends JavaPlugin {
             getLogger().info("ItemsAdder détecté, hook activé.");
         } else {
             getLogger().info("ItemsAdder non détecté.");
+        }
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            placeholderAPIHook = new PlaceholderAPIHook();
+            getLogger().info("PlaceHolderAPI détecté, hook activé.");
+        } else {
+            getLogger().info("PlaceHolderAPI non détecté.");
         }
 
         // ── Vanish (instancié EN PREMIER — les listeners en dépendent) ───────
@@ -174,6 +183,7 @@ public class Main extends JavaPlugin {
     public VanishManager  getVanishManager()    { return vanishManager;    }
     public LuckPermsHook  getLuckPermsHook()    { return luckPermsHook;    }
     public ItemsAdderHook getItemsAdderHook()   { return itemsAdderHook;   }
+    public PlaceholderAPIHook getPlaceholderAPIHook() { return placeholderAPIHook; }
 
     public FileConfiguration getVanishConfig() {
         return customConfigManager.getVanishConfig();
