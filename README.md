@@ -90,6 +90,7 @@ Keep total control over your configuration thanks to a clean file layout:
 
 <div align="center">
 
-*Made with ❤️ by **Zyumie** (aka AyanoBrz)*
+© 2026 Zyumie. Tous droits réservés.  
+Aucune utilisation, modification ou redistribution sans autorisation explicite.
 
 </div>
