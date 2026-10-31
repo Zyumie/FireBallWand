@@ -1,45 +1,40 @@
 plugins {
-    java
-    id("xyz.jpenilla.run-paper") version "2.3.1"
-}
-
-group = "fr.zyumie"
-version = "3.7.1-SNAPSHOT"
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    id("java-library")
+    id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.extendedclip.com/releases/")
-    maven("https://jitpack.io") // ItemsAdder
+    maven("https://jitpack.io")
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("net.luckperms:api:5.4")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    compileOnly(files("C:/Users/yuyu/Documents/Java/LuckPerms-Bukkit-5.5.53.jar"))
+
     compileOnly("com.github.LoneDev6:api-itemsadder:3.6.1")
     compileOnly("me.clip:placeholderapi:2.12.3")
 }
 
-tasks {
-    runServer {
-        minecraftVersion("1.21.11")
-    }
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 tasks {
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-        options.release.set(21)
+    runServer {
+        // Configure the Minecraft version for our task.
+        // This is the only required configuration besides applying the plugin.
+        // Your plugin's jar (or shadowJar if present) will be used automatically.
+        minecraftVersion("26.1.2")
+        jvmArgs("-Xms2G", "-Xmx2G")
     }
-    // plugin.yml utilise ${version}
+
     processResources {
-        val props = mapOf("version" to project.version)
-        inputs.properties(props)
-        filteringCharset = "UTF-8"
-        filesMatching("plugin.yml") { expand(props) }
+        val props = mapOf("version" to version, "description" to project.description)
+        filesMatching("plugin.yml") {
+            expand(props)
+        }
     }
 }
