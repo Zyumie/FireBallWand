@@ -28,8 +28,11 @@ public class ConfigManager implements Listener {
     }
 
     public void loadConfigs() {
+        // ── config.yml ───────────────────────────────────────────────────────
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
+        plugin.getConfig().options().copyDefaults(true);
+        plugin.saveConfig();
 
         // ── Vanish.yml ───────────────────────────────────────────────────────
         vanishFile = new File(plugin.getDataFolder(), "Vanish.yml");
