@@ -1,0 +1,64 @@
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║          FireBallWand - Staff.yml            ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
+#  Mode staff (/staff) et godmod (/godmod, /ungodmod).
+#  Codes couleur : &a &c &f etc. + codes HEX &#RRGGBB
+#  Recharger les items et messages : /fw reload
+#  Les interrupteurs "enabled" demandent un redémarrage du serveur.
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  MODE STAFF  (/staff)
+#  Donne des items de modération dans les cases LIBRES de l'inventaire.
+#  Refaire /staff retire les items.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+staff:
+  enabled: true
+
+  # Chaque item n'est donné que si le joueur a la permission associée :
+  #   vanish  → fireballwand.vanish.level.1 (ou plus)
+  #   freeze  → fireballwand.freezewand
+  #   god     → fireballwand.god
+  #   compass → fireballwand.staff.teleport
+  # slot = case de la barre d'action (0 à 8) ; si elle est occupée,
+  # le plugin utilise la première case libre.
+  items:
+    vanish:
+      name: "&5Vanish"
+      material: ENDER_EYE
+      slot: 0
+    freeze:
+      # Matériau fixe : STONE_SWORD (requis par la FreezeWand)
+      name: "&bBâton de Glace"
+      slot: 1
+    god:
+      name: "&6Godmod"
+      material: TOTEM_OF_UNDYING
+      slot: 2
+    compass:
+      name: "&bBoussole de téléportation"
+      material: COMPASS
+      slot: 3
+
+  messages:
+    enable: "&7[Staff] &aMode staff activé."
+    disable: "&7[Staff] &cMode staff désactivé."
+    no-space: "&7[Staff] &cLibère au moins &f%count% &ccase(s) dans ton inventaire."
+    no-permission: "&cTu n'as pas la permission."
+    tp: "&7[Staff] &aTéléporté à &f%player%&a."
+    tp-none: "&7[Staff] &cAucun joueur à qui te téléporter."
+    # Messages du godmod (aussi utilisés par l'item Godmod)
+    god-enable: "&aGodmod activé."
+    god-disable: "&cGodmod désactivé."
+    god-already-on: "&7Tu es déjà en godmod."
+    god-already-off: "&7Tu n'es pas en godmod."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  GODMOD  (/godmod alias gm, /ungodmod alias ugm)
+#  Annule les dégâts et la faim (sauf vide et /kill).
+#  Permission : fireballwand.god
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+god:
+  enabled: true

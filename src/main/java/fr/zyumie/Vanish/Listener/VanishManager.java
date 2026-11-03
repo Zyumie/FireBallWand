@@ -1,36 +1,35 @@
 package fr.zyumie.Vanish.Listener;
 
 import fr.zyumie.Chat.ChatManager;
+import fr.zyumie.SoftDepend.TabHook;
+import fr.zyumie.fireballwand.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import fr.zyumie.fireballwand.Main;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Gère l'état du vanish, la visibilité hiérarchique et le mode spectateur.
- *
- * Niveaux (fireballwand.vanish.level.N) :
- *   Un observateur de niveau N voit les vanishés de niveau ≤ N.
- *   Helper=1 | Modo=2 | Admin=3 | Proprio=4
- */
 public class VanishManager {
 
     private final Main plugin;
 
-    /** UUID → niveau de vanish */
-    private final Map<UUID, Integer> vanishedPlayers = new HashMap<>();
+    // Structures thread-safe : lues aussi par le thread async du ping serveur.
+
+    /** UUID → niveau de vanish actif */
+    private final Map<UUID, Integer> vanishedPlayers = new ConcurrentHashMap<>();
+
+    /** UUIDs des joueurs à remettre en vanish à la reconnexion */
+    private final Set<UUID> persistedVanishedPlayers = ConcurrentHashMap.newKeySet();
 
     /** UUID → gamemode avant passage en spectateur */
-    private final Map<UUID, GameMode> previousGameMode = new HashMap<>();
+    private final Map<UUID, GameMode> previousGameMode = new ConcurrentHashMap<>();
 
-    /** UUID → timestamp du dernier sneak (pour double-sneak) */
-    private final Map<UUID, Long> lastSneak = new HashMap<>();
+    /** UUID → timestamp du dernier sneak (double-sneak) */
+    private final Map<UUID, Long> lastSneak = new ConcurrentHashMap<>();
 
     private final int maxLevel;
 
@@ -39,7 +38,7 @@ public class VanishManager {
         this.maxLevel = plugin.getVanishConfig().getInt("vanish.max-level", 10);
     }
 
-    // ── Niveau ──────────────────────────────────────────────────────────────
+    // ── Niveau ───────────────────────────────────────────────────────────────
 
     public int getVanishLevel(Player player) {
         for (int lvl = maxLevel; lvl >= 1; lvl--) {
@@ -52,15 +51,30 @@ public class VanishManager {
         return getVanishLevel(player) >= 1 || player.hasPermission("fireballwand.vanish");
     }
 
-    // ── Toggle vanish ────────────────────────────────────────────────────────
+    public boolean canSeeVanished(Player observer, int vanishedLevel) {
+        return getVanishLevel(observer) >= vanishedLevel;
+    }
+
+    // ── État ─────────────────────────────────────────────────────────────────
 
     public boolean isVanished(Player player) {
         return vanishedPlayers.containsKey(player.getUniqueId());
     }
 
+    /** Version UUID : utilisable depuis un thread async (ping serveur). */
+    public boolean isVanished(UUID uuid) {
+        return vanishedPlayers.containsKey(uuid);
+    }
+
+    // ── Toggle ───────────────────────────────────────────────────────────────
+
     public void enableVanish(Player player) {
         int level = Math.max(getVanishLevel(player), 1);
         vanishedPlayers.put(player.getUniqueId(), level);
+        persistedVanishedPlayers.add(player.getUniqueId());
+
+        // Flag lu par TAB (et d'autres plugins) → caché de la tablist / compteurs
+        TabHook.setVanish(player, true);
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online.equals(player)) continue;
@@ -72,20 +86,37 @@ public class VanishManager {
 
     public void disableVanish(Player player) {
         vanishedPlayers.remove(player.getUniqueId());
+        persistedVanishedPlayers.remove(player.getUniqueId());
 
-        // Si en spectateur via vanish → remettre le gamemode précédent
         if (isInVanishSpectator(player)) {
             restoreGameMode(player);
         }
+
+        TabHook.setVanish(player, false);
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             online.showPlayer(plugin, player);
         }
     }
 
-    // ── Rejoin ──────────────────────────────────────────────────────────────
+    // ── Déconnexion / reconnexion ────────────────────────────────────────────
 
-    public void applyVanishOnJoin(Player joining) {
+    public void handleQuit(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (vanishedPlayers.remove(uuid) != null) {
+            persistedVanishedPlayers.add(uuid);
+        }
+        lastSneak.remove(uuid);
+    }
+
+    public void handleJoin(Player joining) {
+        if (persistedVanishedPlayers.contains(joining.getUniqueId()) && canVanish(joining)) {
+            enableVanish(joining);
+        } else {
+            persistedVanishedPlayers.remove(joining.getUniqueId());
+        }
+
+        // Cacher au nouvel arrivant les vanishés qu'il n'a pas le niveau de voir
         for (Map.Entry<UUID, Integer> entry : vanishedPlayers.entrySet()) {
             Player vanished = Bukkit.getPlayer(entry.getKey());
             if (vanished == null || vanished.equals(joining)) continue;
@@ -95,31 +126,19 @@ public class VanishManager {
         }
     }
 
-    // ── Visibilité hiérarchique ──────────────────────────────────────────────
-
-    public boolean canSeeVanished(Player observer, int vanishedLevel) {
-        return getVanishLevel(observer) >= vanishedLevel;
-    }
-
     // ── Spectateur (double-sneak) ────────────────────────────────────────────
 
     public boolean isInVanishSpectator(Player player) {
         return previousGameMode.containsKey(player.getUniqueId());
     }
 
-    /**
-     * Appelé à chaque sneak du joueur vanishé.
-     * Retourne true si un double-sneak vient d'être détecté et traité.
-     */
     public boolean handleSneak(Player player) {
         if (!plugin.getConfig().getBoolean("vanish.spectator-on-sneak.enabled", true)) return false;
         if (!isVanished(player)) return false;
 
         long delay = plugin.getConfig().getLong("vanish.spectator-on-sneak.double-sneak-delay", 400L);
         long now = System.currentTimeMillis();
-        Long last = lastSneak.get(player.getUniqueId());
-
-        lastSneak.put(player.getUniqueId(), now);
+        Long last = lastSneak.put(player.getUniqueId(), now);
 
         if (last != null && (now - last) <= delay) {
             lastSneak.remove(player.getUniqueId());
@@ -134,7 +153,6 @@ public class VanishManager {
         String msgOff = plugin.getConfig().getString("vanish.messages.spectator-off", "&7[Vanish] &cMode spectateur désactivé.");
 
         if (!isInVanishSpectator(player)) {
-            // Sauvegarder le gamemode actuel et passer en spectateur
             previousGameMode.put(player.getUniqueId(), player.getGameMode());
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(ChatManager.colorize(msgOn));
@@ -149,10 +167,15 @@ public class VanishManager {
         if (gm != null) player.setGameMode(gm);
     }
 
-    // ── Utilitaires ─────────────────────────────────────────────────────────
+    // ── Utilitaires ──────────────────────────────────────────────────────────
 
+    /** Joueurs réellement visibles (thread-safe, utilisé par le ping serveur). */
     public int getVisiblePlayerCount() {
-        return Math.max(0, Bukkit.getOnlinePlayers().size() - vanishedPlayers.size());
+        int count = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!vanishedPlayers.containsKey(p.getUniqueId())) count++;
+        }
+        return count;
     }
 
     public Set<UUID> getVanishedUUIDs() {
@@ -161,6 +184,7 @@ public class VanishManager {
 
     public void clear() {
         vanishedPlayers.clear();
+        persistedVanishedPlayers.clear();
         previousGameMode.clear();
         lastSneak.clear();
     }

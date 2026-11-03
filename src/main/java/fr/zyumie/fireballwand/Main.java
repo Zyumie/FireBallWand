@@ -14,6 +14,12 @@ import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
 import fr.zyumie.SoftDepend.LuckPermsHook;
 import fr.zyumie.SoftDepend.PlaceholderAPIHook;
+import fr.zyumie.Staff.GodMod.GodCommand;
+import fr.zyumie.Staff.GodMod.GodManager;
+import fr.zyumie.Staff.StaffCommand;
+import fr.zyumie.Staff.StaffConfig;
+import fr.zyumie.Staff.StaffListener;
+import fr.zyumie.Staff.StaffManager;
 import fr.zyumie.TPA.TpaCommand;
 import fr.zyumie.Vanish.Listener.ServerListListener;
 import fr.zyumie.Vanish.VanishCommand;
@@ -26,6 +32,7 @@ import fr.zyumie.TPA.Listener.TpaTeleportManager;
 import fr.zyumie.TPA.Listener.TpaInvincibilityManager;
 import fr.zyumie.TPA.Listener.TpaListener;
 
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,6 +44,10 @@ public class Main extends JavaPlugin {
     private VanishManager    vanishManager;
     private ConfigManager    customConfigManager;
 
+    private StaffConfig      staffConfig;
+    private StaffManager     staffManager;
+    private GodManager       godManager;
+
     private TpaConfigManager tpaConfigManager;
     private TpaManager tpaManager;
     private TpaTeleportManager tpaTeleportManager;
@@ -46,6 +57,9 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         // Config Manager personnalisé (Gère config.yml, Vanish.yml, CustomCheat.yml)
         customConfigManager = new ConfigManager(this);
+
+        // Config du package Staff (Staff.yml)
+        staffConfig = new StaffConfig(this);
 
         // ── Commande globale /fw reload ─────────────────────────────────────
         if (getCommand("fireballwand") != null) {
@@ -74,11 +88,46 @@ public class Main extends JavaPlugin {
             getLogger().info("PlaceHolderAPI non détecté.");
         }
 
+        if (getServer().getPluginManager().getPlugin("TAB") != null) {
+            getLogger().info("TAB (Neznamy) détecté, hook Vanish activé.");
+        } else {
+            getLogger().info("TAB non détecté.");
+        }
+
         // ── Vanish (instancié EN PREMIER — les listeners en dépendent) ───────
         vanishManager = new VanishManager(this);
         if (getCommand("vanish") != null) getCommand("vanish").setExecutor(new VanishCommand(this));
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new ServerListListener(this), this);
+
+        // ── Staff / Godmod (config : Staff.yml) ──────────────────────────────
+        // Les managers sont toujours créés (très légers) : les messages en dépendent.
+        godManager = new GodManager();
+        staffManager = new StaffManager(this);
+
+        boolean staffEnabled = getStaffConfig().getBoolean("staff.enabled", true);
+        boolean godEnabled   = getStaffConfig().getBoolean("god.enabled", true);
+
+        CommandExecutor disabled = (sender, cmd, label, args) -> {
+            sender.sendMessage("§cCette fonctionnalité est désactivée.");
+            return true;
+        };
+
+        bind("staff", staffEnabled ? new StaffCommand(this) : disabled);
+
+        if (godEnabled) {
+            GodCommand godCommand = new GodCommand(this);
+            bind("godmod", godCommand);
+            bind("ungodmod", godCommand);
+        } else {
+            bind("godmod", disabled);
+            bind("ungodmod", disabled);
+        }
+
+        // Le listener sert aux deux fonctionnalités : inutile de l'enregistrer si les deux sont coupées
+        if (staffEnabled || godEnabled) {
+            getServer().getPluginManager().registerEvents(new StaffListener(this), this);
+        }
 
         // ── TPA System ───────────────────────────────────────────────────────
         this.tpaConfigManager = new TpaConfigManager(this);
@@ -153,7 +202,7 @@ public class Main extends JavaPlugin {
 
         if (getCommand("starterkit") != null) {
             getCommand("starterkit").setExecutor(startKitManager);
-            getCommand("starterkit").setTabCompleter(startKitManager); // <--- Ajoute cette ligne
+            getCommand("starterkit").setTabCompleter(startKitManager);
         }
 
         // ── Listeners généraux ───────────────────────────────────────────────
@@ -169,6 +218,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (staffManager != null) staffManager.disableAll();
+        if (godManager != null) godManager.clear();
         if (vanishManager != null) vanishManager.clear();
         if (tpaTeleportManager != null) tpaTeleportManager.cancelAll();
         if (tpaInvincibilityManager != null) tpaInvincibilityManager.clearAll();
@@ -178,12 +229,30 @@ public class Main extends JavaPlugin {
         getLogger().info("════════════════════════════════════");
     }
 
+    /** Associe un exécuteur à une commande si elle est déclarée dans plugin.yml. */
+    private void bind(String name, CommandExecutor executor) {
+        if (getCommand(name) != null) getCommand(name).setExecutor(executor);
+    }
+
     // ── Getters ──────────────────────────────────────────────────────────────
 
     public VanishManager  getVanishManager()    { return vanishManager;    }
     public LuckPermsHook  getLuckPermsHook()    { return luckPermsHook;    }
     public ItemsAdderHook getItemsAdderHook()   { return itemsAdderHook;   }
     public PlaceholderAPIHook getPlaceholderAPIHook() { return placeholderAPIHook; }
+
+    public StaffManager getStaffManager() { return staffManager; }
+    public GodManager   getGodManager()   { return godManager;   }
+
+    /** Contenu de Staff.yml. */
+    public FileConfiguration getStaffConfig() {
+        return staffConfig.get();
+    }
+
+    /** À appeler depuis /fw reload pour recharger Staff.yml. */
+    public void reloadStaffConfig() {
+        staffConfig.reload();
+    }
 
     public FileConfiguration getVanishConfig() {
         return customConfigManager.getVanishConfig();
@@ -205,24 +274,25 @@ public class Main extends JavaPlugin {
     // ── Startup log ──────────────────────────────────────────────────────────
 
     public void logStartup() {
-        String RED    = "\u001B[31m";
-        String ORANGE = "\u001B[38;5;208m";
-        String YELLOW = "\u001B[33m";
-        String RESET  = "\u001B[0m";
+        String R1 = "\u001B[38;5;196m"; // Rouge vif
+        String R2 = "\u001B[38;5;202m"; // Orange-rouge
+        String O1 = "\u001B[38;5;208m"; // Orange
+        String Y1 = "\u001B[38;5;214m"; // Jaune-orange
+        String Y2 = "\u001B[38;5;220m"; // Jaune vif
+        String GRAY = "\u001B[38;5;242m";
+        String WHITE = "\u001B[38;5;255m";
+        String BOLD = "\u001B[1m";
+        String RESET = "\u001B[0m";
 
-        getLogger().info(RED    + "                                 .''.");
-        getLogger().info(ORANGE + "       .''.             *''*    :_\\/_:     . ");
-        getLogger().info(YELLOW + "      :_\\/_:   .    .:.*_\\/_*   : /\\ :  .'.:.'.");
-        getLogger().info(RED    + "  .''.: /\\ : _\\(/_  ':'* /\\ : '..'.  -=:o:=-");
-        getLogger().info(ORANGE + " :_\\/_:'.:::. /)\\*''*  .|.* '.\\'/.'_\\(/_'.':'.'");
-        getLogger().info(YELLOW + " : /\\ : :::::  '*_\\/_* | |  -= o =- /)\\    '  *");
-        getLogger().info(RED    + " '..'  ':::'   * /\\|'|  .'/.'\\'.  '._____");
-        getLogger().info(ORANGE + "      *        __*..* |  |     :      |.   |' .---\"|");
-        getLogger().info(YELLOW + "       _*   .-'   '-. |  |     .--'|  ||   | _|    |");
-        getLogger().info(RED    + "    .-'|  _.|  |    ||   '-__  |   |  |    ||      |");
-        getLogger().info(ORANGE + "    |' | |.    |    ||       | |   |  |    ||      |");
-        getLogger().info(YELLOW + " ___|  '-'     '    \"\"       '-'   '-.'    '`      |____");
-        getLogger().info(RED    + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + RESET);
-        getLogger().info(YELLOW + "🔥 FireBallWand v" + getDescription().getVersion() + " activé !" + RESET);
+        getLogger().info(R1 + "  ___ ___ ___  ___ ___  _   _   ___  ___  _ _  _  ___  " + RESET);
+        getLogger().info(R2 + " | __|_ _| _ \\| __| _ )/_\\ | | | |  \\/  |/ _\\| | |   \\ " + RESET);
+        getLogger().info(O1 + " | _| | ||   /| _|| _ \\  _ \\| |_| | |\\/| |   | |_| |) |" + RESET);
+        getLogger().info(Y1 + " |_| |___|_|_\\|___|___/_/ \\_\\___|_|_|  |_|_|_|___|___/ " + RESET);
+        getLogger().info(Y2 + "               🔥 FIREBALL WAND CORE V" + getDescription().getVersion() + " 🔥" + RESET);
+        getLogger().info(GRAY + " ──────────────────────────────────────────────────────────" + RESET);
+        getLogger().info(WHITE + "  • Status         : " + Y2 + BOLD + "ONLINE & READY" + RESET);
+        getLogger().info(WHITE + "  • Modules Actifs : " + O1 + "Vanish, Staff, TPA, StarterKit, Cheats, Chat" + RESET);
+        getLogger().info(WHITE + "  • Developpeur    : " + R2 + "Zyumie" + RESET);
+        getLogger().info(GRAY + " ──────────────────────────────────────────────────────────" + RESET);
     }
 }

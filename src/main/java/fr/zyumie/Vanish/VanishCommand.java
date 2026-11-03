@@ -8,6 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor {
 
@@ -18,15 +21,41 @@ public class VanishCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-                             String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
+                             @NotNull String label, @NotNull String[] args) {
 
+        VanishManager vm = plugin.getVanishManager();
+
+        // ── GESTION DE LA SOUS-COMMANDE : /vanish list ────────────────────────
+        if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
+            if (!sender.hasPermission("fireballwand.vanish.list") && !sender.hasPermission("fireballwand.admin")) {
+                sender.sendMessage(ChatManager.colorize("&cTu n'as pas la permission d'utiliser cette commande."));
+                return true;
+            }
+
+            var vanishedUUIDs = vm.getVanishedUUIDs();
+
+            if (vanishedUUIDs.isEmpty()) {
+                sender.sendMessage(ChatManager.colorize("&7[Vanish] &cAucun joueur n'est actuellement en vanish."));
+                return true;
+            }
+
+            sender.sendMessage(ChatManager.colorize("&8--- &6Joueurs en Vanish (&e" + vanishedUUIDs.size() + "&6) &8---"));
+            for (UUID uuid : vanishedUUIDs) {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null) {
+                    int level = vm.getVanishLevel(p);
+                    sender.sendMessage(ChatManager.colorize("&7- &f" + p.getName() + " &8(Niveau: &e" + level + "&8)"));
+                }
+            }
+            return true;
+        }
+
+        // ── VÉRIFICATION JOUEUR POUR LE TOGGLE CLASSIQUE ─────────────────────
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cSeul un joueur peut utiliser cette commande.");
             return true;
         }
-
-        VanishManager vm = plugin.getVanishManager();
 
         // ── Cible ────────────────────────────────────────────────────────────
         Player target = player;
@@ -71,7 +100,6 @@ public class VanishCommand implements CommandExecutor {
                 String quitRaw = plugin.getVanishConfig().getString("fake-join-quit-messages.quit", "&e%player% left the game.");
                 String quitMsg = ChatManager.colorize(quitRaw.replace("%player%", target.getName()));
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    // On l'envoie uniquement à ceux qui peuvent le voir se faire "déconnecter" (ou à tout le monde selon la logique)
                     p.sendMessage(quitMsg);
                 }
             }

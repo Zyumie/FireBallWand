@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -24,8 +25,6 @@ public class VanishListener implements Listener {
         this.plugin = plugin;
         scheduleActionBar();
     }
-
-    // ── Action bar en boucle ─────────────────────────────────────────────────
 
     private void scheduleActionBar() {
         if (!plugin.getConfig().getBoolean("vanish.actionbar.enabled", true)) return;
@@ -49,22 +48,17 @@ public class VanishListener implements Listener {
         }, interval, interval);
     }
 
-    // ── Join ─────────────────────────────────────────────────────────────────
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         Player joining = event.getPlayer();
         VanishManager vm = plugin.getVanishManager();
 
-        vm.applyVanishOnJoin(joining);
+        vm.handleJoin(joining);
 
         if (vm.isVanished(joining)) {
-            vm.enableVanish(joining);
             event.setJoinMessage(null);
         }
     }
-
-    // ── Quit ─────────────────────────────────────────────────────────────────
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
@@ -73,15 +67,21 @@ public class VanishListener implements Listener {
 
         if (vm.isVanished(leaving)) {
             event.setQuitMessage(null);
-            vm.disableVanish(leaving);
+            vm.handleQuit(leaving);
         }
     }
 
-    // ── Double Sneak → Spectateur ────────────────────────────────────────────
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (plugin.getVanishManager().isVanished(player)) {
+                event.setCancelled(true);
+            }
+        }
+    }
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        // Réagit seulement à l'appui (isSneaking = true = début du sneak)
         if (!event.isSneaking()) return;
         plugin.getVanishManager().handleSneak(event.getPlayer());
     }

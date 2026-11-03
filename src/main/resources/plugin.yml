@@ -3,7 +3,7 @@ main: fr.zyumie.fireballwand.Main
 version: ${version}
 api-version: '1.21'
 author: Zyumie
-softdepend: [LuckPerms, ItemsAdder, PlaceholderAPI]
+softdepend: [LuckPerms, ItemsAdder, PlaceholderAPI, TAB]
 
 commands:
 
@@ -77,12 +77,31 @@ commands:
   reply:
     description: Répondre au dernier message privé
     usage: /reply <message>
-    aliases: [r, re]
+    aliases: [r]
 
   vanish:
-    description: Active/désactive le vanish
-    usage: /vanish [joueur]
+    description: Active/désactive le vanish ou liste les vanishs
+    usage: /vanish [joueur|list]
+    aliases: [fv]
     permission: fireballwand.vanish.level.1
+
+  # ── Staff ──────────────────────────────────────────────────────────────────
+  staff:
+    description: Active/désactive le mode staff (items de modération)
+    usage: /staff
+    permission: fireballwand.staff
+
+  godmod:
+    description: Active le godmod
+    usage: /godmod
+    aliases: [gm]
+    permission: fireballwand.god
+
+  ungodmod:
+    description: Désactive le godmod
+    usage: /ungodmod
+    aliases: [ugm]
+    permission: fireballwand.god
 
   # ── Commandes TPA ──────────────────────────────────────────────────────────
   tpa:
@@ -119,10 +138,9 @@ commands:
 
 permissions:
 
-  permissions:
-    fireballwand.admin:
-      description: Permet de recharger toutes les configurations du plugin.
-      default: op
+  fireballwand.admin:
+    description: Permet de recharger toutes les configurations du plugin.
+    default: op
 
   # ── Commandes ──────────────────────────────────────────────────────────────
   fireballwand.firewand:
@@ -173,10 +191,27 @@ permissions:
     description: Immunise contre la Potion of Death
     default: op
 
+  # ── Staff / Godmod ─────────────────────────────────────────────────────────
+  fireballwand.staff:
+    description: Permet d'utiliser /staff (mode staff)
+    default: op
+
+  fireballwand.staff.teleport:
+    description: Donne la boussole de téléportation dans le mode staff
+    default: op
+
+  fireballwand.god:
+    description: Permet d'utiliser /godmod, /ungodmod et l'item Godmod
+    default: op
+
   # ── Kit / StartKit ─────────────────────────────────────────────────────────
   fireballwand.starterkit:
-    description: Permet de réclamer le kit de départ avec /starter.
+    description: Permet de réclamer le kit de départ.
     default: true
+
+  fireballwand.starterkit.others:
+    description: Permet de donner un kit à un autre joueur.
+    default: op
 
   fireballwand.starterkit.bypass:
     description: Permet d'ignorer le cooldown du kit de départ.
@@ -230,6 +265,10 @@ permissions:
 
   fireballwand.vanish.others:
     description: Permet de vanisher un autre joueur
+    default: op
+
+  fireballwand.vanish.list:
+    description: Permet d'utiliser /vanish list
     default: op
 
   fireballwand.vanish.level.1:

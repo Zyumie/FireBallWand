@@ -1,8 +1,9 @@
 package fr.zyumie.Vanish.Listener;
 
-import fr.zyumie.fireballwand.Main;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import fr.zyumie.fireballwand.Main;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 public class ServerListListener implements Listener {
@@ -13,16 +14,19 @@ public class ServerListListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    /**
+     * Cet event est déclenché sur un thread réseau (async) :
+     * on travaille uniquement avec des UUID et des structures thread-safe,
+     * sans appeler Bukkit.getPlayer().
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPing(PaperServerListPingEvent event) {
+        VanishManager vm = plugin.getVanishManager();
 
-        int visiblePlayers = plugin.getVanishManager().getVisiblePlayerCount();
+        // 1. Compteur de joueurs sans les vanishés
+        event.setNumPlayers(vm.getVisiblePlayerCount());
 
-        // Évite d'avoir un nombre négatif
-        if (visiblePlayers < 0) {
-            visiblePlayers = 0;
-        }
-
-        event.setNumPlayers(visiblePlayers);
+        // 2. Liste affichée au survol du compteur
+        event.getListedPlayers().removeIf(info -> vm.isVanished(info.id()));
     }
 }
