@@ -1,5 +1,3 @@
-
-
 <div align="center">
 
 [![Paper](https://raw.githubusercontent.com/intergrav/devins-badges/v3/assets/cozy/supported/paper_vector.svg)](https://papermc.io/)
@@ -20,19 +18,20 @@
 
 ## 📖 About
 
-**FireBallWand** is a modular Minecraft plugin designed to bring administration tools, moderation features and custom items together in one versatile solution.
+**FireBallWand** is a modular Minecraft plugin designed to bring administration tools, moderation features, essential player commands and custom items together in one versatile solution.
 
 Whether you're managing a Survival server, a private SMP or an event-based community, FireBallWand provides the tools needed to manage your players, moderate discreetly and customize your gameplay experience.
 
-From an advanced **Vanish system** and **Staff Mode** to powerful custom weapons, teleportation requests and private messaging, every feature is designed to be configurable and easy to use.
+From an advanced **Vanish system** and **Staff Mode** to **homes**, a **spawn**, teleportation requests, private messaging and powerful custom items, every feature is designed to be configurable and easy to use.
 
 ### ✨ Main Highlights
 
-- 🛡️ Complete Staff Mode and moderation toolkit.
-- 👻 Advanced hierarchical Vanish system.
-- ⭐ God Mode with configurable behavior.
-- 💥 Custom weapons, armor and special items.
-- 💬 Chat formatting and private messaging.
+- 🛡️ Complete Staff Mode with a safely stored inventory and a full moderation toolkit.
+- 👻 Advanced hierarchical Vanish system that leaves no trace in commands or tab-complete.
+- ⭐ God Mode and flight commands with configurable behavior.
+- 🏠 Home system with a menu, plus a configurable spawn.
+- 💥 Custom weapons, armor and fun items.
+- 💬 Chat formatting, private messaging and custom join/leave messages.
 - 🧭 Interactive teleportation request system.
 - 🎒 Automatic and configurable Starter Kit.
 - 📂 Separate YAML configuration files for each module.
@@ -40,7 +39,7 @@ From an advanced **Vanish system** and **Staff Mode** to powerful custom weapons
 
 ---
 
-## 🛡️ Features
+## 🛡️ Staff Features
 
 ### Staff Mode — `/staff`
 
@@ -49,8 +48,8 @@ A dedicated moderation toolkit that allows staff members to moderate players wit
 **How it works:**
 
 - Toggle Staff Mode with `/staff`.
-- Automatically receive your authorized moderation items.
-- Execute `/staff` again to leave Staff Mode.
+- Your real inventory is saved, then replaced by your moderation items.
+- Execute `/staff` again to leave Staff Mode and get everything back.
 - Each item is only provided when the corresponding permission is available.
 
 **Available tools:**
@@ -61,17 +60,27 @@ A dedicated moderation toolkit that allows staff members to moderate players wit
 | ❄️ FreezeWand | Freeze or unfreeze targeted players |
 | ⭐ God Mode Item | Toggle God Mode |
 | 🧭 Teleport Compass | Teleport to the next online player |
+| 🪶 Fly Feather | Toggle flight |
 
-**Inventory protection:**
+**Inventory safety:**
 
-- Items are placed in free inventory slots only.
-- Existing inventory items are never replaced.
-- Staff items cannot be dropped or stored in chests.
-- Moving protected items to the offhand is blocked.
-- Staff items are removed when disconnecting.
-- Item names, materials, slots and messages are configurable.
+- Your inventory (items, armor, offhand and optionally XP) is written to disk **before** being cleared. If that fails, Staff Mode simply doesn't start.
+- It is restored when you leave Staff Mode, disconnect, die (at respawn) or when the server stops.
+- After a server crash, it is restored automatically when you reconnect.
+- Staff items can't be dropped, stored in chests or moved to the offhand, and never drop on death.
 
-The entire module can be disabled through `Staff.yml`.
+**Protections while in Staff Mode (each one can be toggled):**
+
+- No breaking or placing blocks.
+- No picking up or dropping items.
+- No hitting players (the FreezeWand still works).
+
+**Inspection tools:**
+
+- 🔍 **Inventory viewer:** right-click a player to see their inventory live. Read-only by default, editing needs a separate permission.
+- 🤫 **Silent containers:** while vanished, open chests, barrels, hoppers, furnaces, shulker boxes and more without any sound or animation (read-only). You briefly enter Spectator Mode and get your previous game mode back when you close the container.
+
+Item names, materials, slots and messages are configurable, and the entire module can be disabled through `Staff.yml`.
 
 ### ⭐ God Mode
 
@@ -84,6 +93,14 @@ An invulnerability system for administrators and staff members.
 - Can also be activated through the Staff Mode item.
 - Includes short aliases: `/gm` and `/ugm`.
 
+### 🪶 Fly
+
+**Commands:** `/fly [player]`, `/fly speed <1-10> [player]`
+
+- Toggle flight for yourself or another player.
+- Adjustable flight speed, with a configurable maximum.
+- Turning flight off in mid-air ignores the fall damage that follows.
+
 ### 👻 Advanced Hierarchical Vanish
 
 An advanced Vanish system designed for discreet staff moderation.
@@ -94,29 +111,59 @@ An advanced Vanish system designed for discreet staff moderation.
 - Lower staff ranks cannot see higher-ranked vanished players.
 - Visibility is managed through permission-based levels.
 
-**Persistence and discretion:**
+**Discretion:**
+
+- Toggling Vanish sends the same message a real disconnect or connect would (vanilla, custom or hidden, following your join/leave message settings), only to players who can't see that staff member.
+- Join and quit messages are hidden while vanished.
+- Vanished players' names are removed from the auto-complete of **every command**, including other plugins' commands.
+- `/tpa`, `/tpahere`, `/msg`, `/starterkit` and `/fly` answer "player not found" for a vanished player the sender isn't allowed to see.
+- Vanished players are excluded from the server-list player count and hover player list.
+- TAB integration hides vanished players from unauthorized viewers.
+- Persistent ActionBar reminder.
+
+**Persistence and extras:**
 
 - Vanish status is preserved after reconnecting.
-- Join and quit messages are hidden while vanished.
-- Optional fake join and quit messages when toggling Vanish.
-- Persistent ActionBar reminder.
-- Vanished players are excluded from the server-list player count and hover player list.
-- Vanished players cannot pick up items.
-- TAB integration hides vanished players from unauthorized viewers.
-
-**Additional features:**
-
+- Vanished players cannot pick up items, and KickArmor never kicks them.
 - Double-sneak to switch to Spectator Mode and return to the previous game mode.
-- `/vanish list` displays currently vanished players.
+- `/vanish list` displays the vanished players you are allowed to see.
 - Chat protection prevents messages from being sent unless they end with `/`.
 
 All Vanish settings, permission levels and messages can be customized in `Vanish.yml`.
 
-### 💬 Chat & Private Messages
+---
 
-Customize the way your community communicates.
+## 🏠 Essentials
 
-**Chat formatting:**
+### Homes — `/home`, `/sethome`, `/delhome`
+
+A home system with a clean in-game menu.
+
+- Up to **5 homes** per player, controlled by permissions.
+- `/home` or `/home list` opens a menu: left-click to teleport, right-click to delete.
+- Tab-complete for home names, with safe names (letters, numbers, `-` and `_`).
+- Configurable teleport delay (cancelled on movement or damage), optional cooldown and bypass permissions.
+- Homes are loaded before the player joins and saved asynchronously, only when something changed.
+- Teleports load the destination chunk without blocking the server.
+- Homes from the old Home plugin are imported automatically on first start (the original file is kept as a backup).
+
+All settings and messages are managed through `Home.yml`.
+
+### Spawn — `/spawn`, `/setspawn`
+
+- Set the server spawn with `/setspawn`.
+- Configurable delay and cooldown, with bypass permissions.
+- Teleport players to spawn on their first join, on every join, or never.
+- Optionally respawn players at spawn after death (a valid bed or respawn anchor keeps priority).
+- The spawn of the old NewSpawn plugin is imported automatically.
+
+All settings and messages are managed through `Spawn.yml`.
+
+---
+
+## 💬 Chat & Communication
+
+### Chat formatting
 
 - Permission-based color access.
 - Standard Minecraft color codes using `&`.
@@ -125,17 +172,20 @@ Customize the way your community communicates.
 - ItemsAdder glyph support for custom rank icons.
 - PlaceholderAPI support in chat formats and welcome messages.
 
-**Private messaging:**
+### Private messaging
 
 - `/msg` — Send a private message.
 - `/reply` — Reply to the last private conversation.
 
-**Welcome system:**
+### Welcome & join/leave messages
 
 - Configurable first-join welcome message.
-- PlaceholderAPI support.
+- Customizable join and leave messages: keep the vanilla ones, use your own text (with prefix and suffix placeholders) or hide them.
+- A dedicated message for brand-new players.
 
-### 🧭 Teleportation Request System
+---
+
+## 🧭 Teleportation Request System
 
 A configurable TPA system with interactive chat controls.
 
@@ -161,7 +211,9 @@ Cooldown data uses asynchronous file operations to reduce unnecessary synchronou
 
 All settings are managed through `Tpa.yml`.
 
-### 🎒 Starter Kit
+---
+
+## 🎒 Starter Kit
 
 **Command:** `/starterkit`
 
@@ -181,7 +233,9 @@ Give new players everything they need to start their adventure.
 - Dedicated cooldown bypass permissions.
 - Customizable kit configuration through `StartKit.yml`.
 
-### 💥 Custom Items & Admin Arsenal
+---
+
+## 💥 Custom Items & Admin Arsenal
 
 FireBallWand also includes a collection of powerful custom items designed for administration, testing and fun events.
 
@@ -192,12 +246,18 @@ FireBallWand also includes a collection of powerful custom items designed for ad
 | ❄️ **FreezeWand** | Freezes targeted players in place. |
 | ⚡ **WinCharge Boosted** | A powerful explosive charge with x3 boosted power. |
 | ☠️ **Potion of Death** | A deadly splash potion that bypasses Creative Mode and handles Keep Inventory. |
+| ❄️ **Cursed Snowball** | Applies negative effects (slowness, blindness, nausea by default) to the player it hits. |
+| ⬆️ **Sword Up** | The player you hit gets Levitation. |
+| 🧊 **Ice Boots** | The wearer slides on any full block as if it were ice. |
 | ⚔️ **Cheat Sword** | An overpowered custom sword. |
 | 🔨 **Cheat Mace** | An enhanced custom mace. |
 | 💎 **Diamond Cheat Armor** | A complete diamond armor set with extreme attributes and enchantments. |
 | 🛡️ **Netherite Cheat Armor** | A complete netherite armor set with extreme attributes and enchantments. |
 
-Certain equipment includes level 255+ enchantments and custom attributes.
+- Each fun item has its own dedicated give permission.
+- OPs and players with the matching bypass permission are immune to the Cursed Snowball and the Sword Up (configurable).
+- Ice Boots only send fake ice to the wearer: the world is never modified and nobody else sees anything.
+- Certain equipment includes level 255+ enchantments and custom attributes.
 
 All custom item settings are managed through `CustomCheat.yml`.
 
@@ -211,14 +271,18 @@ Each feature has its own dedicated configuration file, making customization and 
 
 | Configuration file | Purpose |
 |:---|:---|
-| `config.yml` | General settings, chat and private messages |
-| `Staff.yml` | Staff Mode, moderation items and God Mode |
+| `config.yml` | General settings, chat, private messages and join/leave messages |
+| `Staff.yml` | Staff Mode, protections, moderation items, God Mode and Fly |
 | `Vanish.yml` | Vanish hierarchy, visibility and messages |
+| `Home.yml` | Homes: limits, delay, cooldown and messages |
+| `Spawn.yml` | Spawn: join and respawn behavior, delay, cooldown and messages |
 | `CustomCheat.yml` | Custom weapons, armor and special items |
 | `StartKit.yml` | Starter Kit contents and cooldowns |
 | `Tpa.yml` | Teleportation requests and protection settings |
 
-**Reload configuration:**
+Messages in `Home.yml` and `Spawn.yml` accept both MiniMessage and `&` color codes.
+
+**Reload every configuration file:**
 
 ```text
 /fw reload
@@ -264,7 +328,9 @@ All integrations are optional.
 
 **Optional:** Install LuckPerms, ItemsAdder, PlaceholderAPI and/or TAB to enable their respective integrations.
 
-> **Using TAB?** Assign the appropriate `tab.seevanished` permission to staff members who should be able to see vanished players in the tab list.
+> **Using TAB?** Assign the `tab.seevanished` permission to staff members who should be able to see vanished players in the tab list.
+
+> **Coming from the old Home or NewSpawn plugins?** Your homes and spawn are imported on the first start. Remove the old plugins afterwards to avoid duplicate commands.
 
 ---
 
@@ -277,9 +343,23 @@ All integrations are optional.
 | `/staff` | Toggle Staff Mode | `fireballwand.staff` |
 | `/godmod` / `/gm` | Enable God Mode | `fireballwand.god` |
 | `/ungodmod` / `/ugm` | Disable God Mode | `fireballwand.god` |
+| `/fly [player]` | Toggle flight | `fireballwand.fly` (`.fly.others` for other players) |
+| `/fly speed <1-10> [player]` | Set the flight speed | `fireballwand.fly.speed` |
 | `/vanish` / `/fv` | Toggle your Vanish status | `fireballwand.vanish.level.1` |
 | `/vanish <player>` | Toggle another player's Vanish | `fireballwand.vanish.others` |
 | `/vanish list` | Display vanished players | `fireballwand.vanish.list` |
+
+### Homes & Spawn
+
+| Command | Description | Permission |
+|:---|:---|:---|
+| `/home [name\|list]` | Teleport to a home or open the menu | `fireballwand.home.use` |
+| `/sethome [name]` | Set a home at your position | `fireballwand.home.set` |
+| `/delhome [name]` | Delete one of your homes | `fireballwand.home.delete` |
+| `/spawn` | Teleport to the spawn | `fireballwand.spawn.use` |
+| `/setspawn` | Set the spawn at your position | `fireballwand.spawn.set` |
+
+Everyone can use these commands by default. The number of homes is controlled by `fireballwand.home.max.1` to `fireballwand.home.max.5`.
 
 ### Utility & Communication
 
@@ -288,9 +368,9 @@ All integrations are optional.
 | `/starterkit` | Claim the Starter Kit | `fireballwand.starterkit` |
 | `/tpa <player>` | Request teleportation | `fireballwand.tpa` |
 | `/tpahere <player>` | Invite a player to teleport to you | `fireballwand.tpahere` |
-| `/tpaccept` | Accept a request | Verify `Tpa.yml` |
-| `/tpdeny` | Deny a request | Verify `Tpa.yml` |
-| `/tpacancel` | Cancel a request | Verify `Tpa.yml` |
+| `/tpaccept` | Accept a request | `fireballwand.tpa` |
+| `/tpdeny` | Deny a request | `fireballwand.tpa` |
+| `/tpacancel` | Cancel a request | `fireballwand.tpa` |
 | `/msg <player>` | Send a private message | `fireballwand.msg` |
 | `/reply` | Reply to a private message | `fireballwand.reply` |
 
@@ -303,6 +383,9 @@ All integrations are optional.
 | `/freezewand` | Get the FreezeWand | `fireballwand.freezewand` |
 | `/wincharge_boosted` | Get the boosted WinCharge | `fireballwand.wincharge_boosted` |
 | `/potionofdeath` / `/pod` | Get the Potion of Death | `fireballwand.potion-of-death` |
+| `/negativesnowball` / `/nsnow` | Get the Cursed Snowballs | `fireballwand.negativesnowball` |
+| `/swordup` | Get the Sword Up | `fireballwand.swordup` |
+| `/iceboots` | Get the Ice Boots | `fireballwand.iceboots` |
 | `/cheatsword` | Get the Cheat Sword | `fireballwand.cheatsword` |
 | `/cheatmace` | Get the Cheat Mace | `fireballwand.cheatmace` |
 | `/diamond_armorcheat` | Get the Diamond Cheat Armor | `fireballwand.diamond_armorcheat` |
@@ -312,9 +395,22 @@ All integrations are optional.
 
 | Command | Description | Permission |
 |:---|:---|:---|
-| `/fw reload` | Reload plugin configurations | `fireballwand.admin` |
+| `/fw reload` | Reload every configuration file | `fireballwand.admin` |
+| `/tpareload` | Reload the teleportation request settings | `fireballwand.tpa.admin` |
 
-> **Note:** Teleportation permission nodes should be checked against the actual command registration and configuration before assigning them to ranks.
+### Additional permissions
+
+| Permission | Description |
+|:---|:---|
+| `fireballwand.staff.teleport` | Gives the teleport compass in Staff Mode |
+| `fireballwand.staff.invsee` | View a player's inventory in Staff Mode |
+| `fireballwand.staff.invsee.edit` | Edit a player's inventory through the viewer |
+| `fireballwand.vanish.level.1` to `.4` | Vanish levels (a higher level sees the lower ones) |
+| `fireballwand.home.bypass.warmup` / `.cooldown` | Skip the home delay / cooldown |
+| `fireballwand.spawn.bypass.warmup` / `.cooldown` | Skip the spawn delay / cooldown |
+| `fireballwand.negativesnowball.bypass` | Immunity to the Cursed Snowball |
+| `fireballwand.swordup.bypass` | Immunity to the Sword Up |
+| `fireballwand.chat.color` / `.chat.color.hex` | Use `&` colors / hex colors in chat |
 
 ---
 
@@ -360,4 +456,3 @@ All rights reserved. Unauthorized copying, modification, redistribution or use o
 🔥 FireBallWand — Administration, Moderation & Custom Gameplay.
 
 </div>
-
