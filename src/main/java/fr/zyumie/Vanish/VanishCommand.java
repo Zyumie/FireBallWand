@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor {
@@ -33,20 +35,22 @@ public class VanishCommand implements CommandExecutor {
                 return true;
             }
 
-            var vanishedUUIDs = vm.getVanishedUUIDs();
+            // Hiérarchie : on ne liste que les vanishés que l'expéditeur a le niveau de voir
+            List<Player> visible = new ArrayList<>();
+            for (UUID uuid : vm.getVanishedUUIDs()) {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null && vm.canSee(sender, p)) visible.add(p);
+            }
 
-            if (vanishedUUIDs.isEmpty()) {
+            if (visible.isEmpty()) {
                 sender.sendMessage(ChatManager.colorize("&7[Vanish] &cAucun joueur n'est actuellement en vanish."));
                 return true;
             }
 
-            sender.sendMessage(ChatManager.colorize("&8--- &6Joueurs en Vanish (&e" + vanishedUUIDs.size() + "&6) &8---"));
-            for (UUID uuid : vanishedUUIDs) {
-                Player p = Bukkit.getPlayer(uuid);
-                if (p != null) {
-                    int level = vm.getVanishLevel(p);
-                    sender.sendMessage(ChatManager.colorize("&7- &f" + p.getName() + " &8(Niveau: &e" + level + "&8)"));
-                }
+            sender.sendMessage(ChatManager.colorize("&8--- &6Joueurs en Vanish (&e" + visible.size() + "&6) &8---"));
+            for (Player p : visible) {
+                int level = vm.getVanishLevel(p);
+                sender.sendMessage(ChatManager.colorize("&7- &f" + p.getName() + " &8(Niveau: &e" + level + "&8)"));
             }
             return true;
         }
@@ -62,13 +66,15 @@ public class VanishCommand implements CommandExecutor {
 
         if (args.length >= 1) {
             if (!player.hasPermission("fireballwand.vanish.others")) {
-                player.sendMessage(msg("vanish.messages.no-permission-other", "&cTu n'as pas la permission de vanisher d'autres joueurs.")
+                player.sendMessage(msg("messages.no-permission-other", "&cTu n'as pas la permission de vanisher d'autres joueurs.")
                         .replace("%player%", args[0]));
                 return true;
             }
             target = plugin.getServer().getPlayerExact(args[0]);
+            // Un vanishé de niveau supérieur doit rester introuvable
+            if (target != null && !vm.canSee(player, target)) target = null;
             if (target == null) {
-                player.sendMessage(msg("vanish.messages.player-not-found", "&cJoueur introuvable : &f%player%")
+                player.sendMessage(msg("messages.player-not-found", "&cJoueur introuvable : &f%player%")
                         .replace("%player%", args[0]));
                 return true;
             }
@@ -76,51 +82,31 @@ public class VanishCommand implements CommandExecutor {
 
         // ── Permission de base ───────────────────────────────────────────────
         if (!vm.canVanish(target)) {
-            String key = target.equals(player) ? "vanish.messages.no-permission" : "vanish.messages.no-permission-other";
+            String key = target.equals(player) ? "messages.no-permission" : "messages.no-permission-other";
             player.sendMessage(msg(key, "&cPas de permission.").replace("%player%", target.getName()));
             return true;
         }
 
         // ── Toggle ───────────────────────────────────────────────────────────
-        boolean fakeMsgEnabled = plugin.getVanishConfig().getBoolean("fake-join-quit-messages.enabled", true);
-
         if (!vm.isVanished(target)) {
             vm.enableVanish(target);
             int lvl = vm.getVanishLevel(target);
 
-            player.sendMessage(msg("vanish.messages.enable", "&aVanish activé. &7(niveau &f%level%&7)")
+            player.sendMessage(msg("messages.enable", "&aVanish activé. &7(niveau &f%level%&7)")
                     .replace("%level%", String.valueOf(lvl)));
 
             if (!target.equals(player))
-                target.sendMessage(msg("vanish.messages.enable-other", "&aTon vanish a été activé par &f%player%&a.")
+                target.sendMessage(msg("messages.enable-other", "&aTon vanish a été activé par &f%player%&a.")
                         .replace("%player%", player.getName()));
-
-            // Simuler un message de QUIT (déconnexion) dans le chat
-            if (fakeMsgEnabled) {
-                String quitRaw = plugin.getVanishConfig().getString("fake-join-quit-messages.quit", "&e%player% left the game.");
-                String quitMsg = ChatManager.colorize(quitRaw.replace("%player%", target.getName()));
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.sendMessage(quitMsg);
-                }
-            }
 
         } else {
             vm.disableVanish(target);
 
-            player.sendMessage(msg("vanish.messages.disable", "&cVanish désactivé."));
+            player.sendMessage(msg("messages.disable", "&cVanish désactivé."));
 
             if (!target.equals(player))
-                target.sendMessage(msg("vanish.messages.disable-other", "&cTon vanish a été désactivé par &f%player%&c.")
+                target.sendMessage(msg("messages.disable-other", "&cTon vanish a été désactivé par &f%player%&c.")
                         .replace("%player%", player.getName()));
-
-            // Simuler un message de JOIN (connexion) dans le chat
-            if (fakeMsgEnabled) {
-                String joinRaw = plugin.getVanishConfig().getString("fake-join-quit-messages.join", "&e%player% joined the game.");
-                String joinMsg = ChatManager.colorize(joinRaw.replace("%player%", target.getName()));
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.sendMessage(joinMsg);
-                }
-            }
         }
 
         return true;

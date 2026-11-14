@@ -21,9 +21,8 @@ public class FireballWandCommand implements CommandExecutor {
         }
 
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            // Remplace par la méthode exacte que tu utilises dans ton Main.java pour recharger les configs
-            plugin.reloadConfig(); // Si tu utilises la méthode native de Spigot/Paper
-            // OU si tu as une méthode personnalisée dans ton Main, mets son nom exact ici (ex: plugin.getTonGestionnaire().reload())
+            // Recharge config.yml, Vanish.yml, CustomCheat.yml, StartKit.yml, Staff.yml et Tpa.yml
+            plugin.reloadAll();
 
             sender.sendMessage("§a[FireballWand] §e✔ Toutes les configurations ont été rechargées avec succès !");
             return true;

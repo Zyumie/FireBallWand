@@ -1,3 +1,11 @@
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║        FireBallWand - CustomCheat.yml        ║
+#          ║       Armes, Armures et Items Spéciaux       ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
+
 # ==========================================
 #          FireBallWand - CustomCheats
 #          Armes, Armures et Items Spéciaux
@@ -76,3 +84,75 @@ cheats:
     name: "&6Mace Cheater"
   armor:
     name: "&4Armor Cheat"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  SNOWBALL MAUDITE  (/negativesnowball, alias /nsnow)
+#  Give : fireballwand.negativesnowball
+#  Immunité : OP + fireballwand.negativesnowball.bypass (si ignore-ops: true)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+negative-snowball:
+  name: "&bSnowball Maudite"
+  amount: 16               # 1 à 16
+  lore:
+    - "&7Lance-la sur un joueur pour"
+    - "&7lui infliger des effets négatifs."
+  ignore-ops: true
+  # Effets appliqués au joueur touché, au format  type:durée_en_ticks:amplificateur
+  # (20 ticks = 1 seconde, amplificateur 0 = niveau I). Exemples de types :
+  # slowness, blindness, nausea, weakness, hunger, poison, wither, darkness, mining_fatigue
+  effects:
+    - "slowness:100:1"
+    - "blindness:60:0"
+    - "nausea:100:0"
+  messages:
+    given: "&aTu as reçu des &bSnowballs Maudites &a!"
+    no-permission: "&c❌ Tu n'as pas la permission d'utiliser cette commande."
+    hit: "&c❄ Tu as été touché par une Snowball Maudite !"
+    hit-sender: "&bTu as maudit &f%player% &b!"
+    bypass: "&a🛡 Tu as résisté à la Snowball Maudite grâce à tes privilèges !"
+    immune: "&c❌ &f%player% &cest immunisé."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  SWORD UP  (/swordup)
+#  Donne de la lévitation au joueur touché.
+#  Give : fireballwand.swordup
+#  Immunité : OP + fireballwand.swordup.bypass (si ignore-ops: true)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+sword-up:
+  name: "&dSword Up"
+  material: IRON_SWORD     # n'importe quelle épée
+  lore:
+    - "&7Un coup et ta cible"
+    - "&7s'envole dans les airs !"
+  ignore-ops: true
+  duration-ticks: 100      # 5 secondes
+  amplifier: 0             # niveau de lévitation (0 = niveau I)
+  messages:
+    given: "&aTu as reçu la &dSword Up &a!"
+    no-permission: "&c❌ Tu n'as pas la permission d'utiliser cette commande."
+    hit: "&d⬆ Tu as été propulsé dans les airs par une Sword Up !"
+    immune: "&c❌ &f%player% &cest immunisé contre la Sword Up."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  ICE BOOTS  (/iceboots)
+#  Le porteur glisse sur n'importe quel bloc plein, comme sur de la glace.
+#  Technique : de faux blocs de glace sont envoyés au seul porteur (aucun bloc
+#  réel n'est modifié, les autres joueurs ne voient rien). Le porteur voit donc
+#  de la glace sous ses pieds.
+#  Give : fireballwand.iceboots
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ice-boots:
+  name: "&bIce Boots"
+  color: "7FDFFF"          # couleur des bottes en cuir (hex)
+  unbreakable: true
+  lore:
+    - "&7Glisse sur n'importe quel bloc"
+    - "&7comme sur de la glace."
+  # Bloc de glace envoyé au porteur : ICE, PACKED_ICE (même glisse) ou BLUE_ICE (plus glissant)
+  block: PACKED_ICE
+  # Zone autour du porteur : 1 = 3x3 blocs, 2 = 5x5 (max 3). Plus grand = glisse plus fluide
+  # à grande vitesse, mais un peu plus de paquets.
+  radius: 1
+  messages:
+    given: "&aTu as reçu les &bIce Boots &a!"
+    no-permission: "&c❌ Tu n'as pas la permission d'utiliser cette commande."

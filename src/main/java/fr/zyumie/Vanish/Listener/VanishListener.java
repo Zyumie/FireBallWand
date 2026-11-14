@@ -2,10 +2,10 @@ package fr.zyumie.Vanish.Listener;
 
 import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.fireballwand.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,9 +15,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class VanishListener implements Listener {
+
+    // Gère le format hex produit par ChatManager.colorize (§x§r§r§g§g§b§b)
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
+            .character('§').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
     private final Main plugin;
 
@@ -26,23 +31,26 @@ public class VanishListener implements Listener {
         scheduleActionBar();
     }
 
+    /** Action bar « vous êtes en vanish » — Vanish.yml → actionbar.* (clés à la racine). */
     private void scheduleActionBar() {
-        if (!plugin.getConfig().getBoolean("vanish.actionbar.enabled", true)) return;
+        FileConfiguration cfg = plugin.getVanishConfig();
+        if (!cfg.getBoolean("actionbar.enabled", true)) return;
 
-        long interval = plugin.getConfig().getLong("vanish.actionbar.interval", 40L);
-        String rawMsg = plugin.getConfig().getString("vanish.actionbar.message",
-                "&8[ &7Vous êtes actuellement en vanish &8]");
-
-        String msg = ChatManager.colorize(rawMsg);
+        long interval = Math.max(1L, cfg.getLong("actionbar.interval", 40L));
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            for (UUID uuid : plugin.getVanishManager().getVanishedUUIDs()) {
+            Set<UUID> vanished = plugin.getVanishManager().getVanishedUUIDs();
+            if (vanished.isEmpty()) return;
+
+            // Relu à chaque passage : le message se met à jour avec /fw reload
+            String raw = plugin.getVanishConfig().getString("actionbar.message",
+                    "&8[ &7Vous êtes actuellement en vanish &8]");
+            Component message = LEGACY.deserialize(ChatManager.colorize(raw));
+
+            for (UUID uuid : vanished) {
                 Player p = Bukkit.getPlayer(uuid);
                 if (p != null && p.isOnline()) {
-                    p.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            TextComponent.fromLegacyText(msg)
-                    );
+                    p.sendActionBar(message);
                 }
             }
         }, interval, interval);
@@ -56,7 +64,7 @@ public class VanishListener implements Listener {
         vm.handleJoin(joining);
 
         if (vm.isVanished(joining)) {
-            event.setJoinMessage(null);
+            event.joinMessage(null);
         }
     }
 
@@ -66,17 +74,16 @@ public class VanishListener implements Listener {
         VanishManager vm = plugin.getVanishManager();
 
         if (vm.isVanished(leaving)) {
-            event.setQuitMessage(null);
+            event.quitMessage(null);
             vm.handleQuit(leaving);
         }
     }
 
     @EventHandler
     public void onPickup(EntityPickupItemEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            if (plugin.getVanishManager().isVanished(player)) {
-                event.setCancelled(true);
-            }
+        if (event.getEntity() instanceof Player player
+                && plugin.getVanishManager().isVanished(player)) {
+            event.setCancelled(true);
         }
     }
 

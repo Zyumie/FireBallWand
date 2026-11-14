@@ -17,9 +17,8 @@ public class VersionManager implements Listener {
 
     private static JavaPlugin plugin;
     private static String latestVersion = null;
-																// Mettre l'ID  ⬇️⬇️⬇️⬇️
-    private static final String URL_API = "https://api.modrinth.com/v2/project/PkEW0HWN/version?version_type=release";
-
+                                                               // Mettre l'ID  ⬇️⬇️⬇️⬇️
+    private static final String URL_API = "https://api.modrinth.com/v2/project/PkEW0HWN/version";
     
     public static void init(JavaPlugin pluginInstance) {
         plugin = pluginInstance;

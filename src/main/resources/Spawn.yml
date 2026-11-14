@@ -1,0 +1,55 @@
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║          FireBallWand - Spawn.yml            ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
+#  Spawn du serveur : /spawn, /setspawn
+#
+#  Messages : format MiniMessage (<green>, <yellow>, <b>...) OU codes & / &#RRGGBB.
+#  Le format est détecté automatiquement. Placeholders : {world} {x} {y} {z} {time} {seconds}
+#  Recharger : /fw reload  (l'interrupteur "enabled" demande un redémarrage)
+#
+#  Permissions :
+#    fireballwand.spawn.use                       → /spawn (tous par défaut)
+#    fireballwand.spawn.set                       → /setspawn (OP par défaut)
+#    fireballwand.spawn.bypass.warmup / .cooldown → ignorer l'attente / le cooldown
+#  (les anciennes permissions newspawn.use et newspawn.set restent acceptées)
+#
+#  La position du spawn est enregistrée dans plugins/FireBallWand/data/spawn-location.yml
+#  (reprise automatiquement depuis l'ancien plugin NewSpawn s'il existait).
+
+enabled: true
+
+# Quand téléporter les joueurs au spawn à la connexion :
+#   NEVER      -> jamais
+#   FIRST_JOIN -> uniquement la toute première connexion
+#   ALWAYS     -> à chaque connexion
+join-teleport: FIRST_JOIN
+
+# Faire réapparaître les joueurs au spawn après leur mort
+# (un lit ou une ancre de réapparition valide reste prioritaire)
+respawn-at-spawn: true
+
+# Temps d'attente (en secondes) entre /spawn et la téléportation (0 = instantané)
+spawn-delay: 10
+
+# Cooldown (en secondes) entre deux /spawn (0 = aucun)
+cooldown-seconds: 5
+
+# Annuler la téléportation si le joueur bouge / subit des dégâts pendant l'attente
+cancel-on-move: true
+cancel-on-damage: true
+
+messages:
+  prefix: ""
+  spawn-set: "<green>Spawn défini en <white>{world} <gray>({x}, {y}, {z})</gray></white>.</green>"
+  teleport-pending: "<yellow>Téléportation au spawn dans <white>{time}s</white>. Ne bouge pas !</yellow>"
+  teleport-cancelled: "<red>Téléportation annulée, tu as bougé.</red>"
+  already-pending: "<red>Une téléportation est déjà en cours.</red>"
+  cooldown: "<red>Patiente encore <white>{seconds}s</white> avant de réutiliser /spawn.</red>"
+  teleported: "<green>Tu as été téléporté au spawn.</green>"
+  no-spawn: "<red>Aucun spawn n'a été défini. Utilise <white>/setspawn</white>.</red>"
+  world-missing: "<red>Le monde du spawn est introuvable.</red>"
+  no-permission: "<red>Tu n'as pas la permission d'effectuer cette action.</red>"
+  players-only: "<red>Cette commande est réservée aux joueurs.</red>"

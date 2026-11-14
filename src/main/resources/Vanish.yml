@@ -1,6 +1,9 @@
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  VANISH CONFIGURATION
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║         FireBallWand - Vanish.yml            ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
 
 # Niveau maximum scanné (fireballwand.vanish.level.N de 1 à max-level)
 max-level: 10
@@ -10,6 +13,7 @@ actionbar:
   enabled: true
   message: "&8[ &7Vous êtes actuellement en vanish &8]"
   # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
+  # (demande un redémarrage ; le texte du message, lui, suit /fw reload)
   interval: 40
 
 # Double-sneak pour basculer en mode spectateur (et retour)
@@ -18,13 +22,21 @@ spectator-on-sneak:
   # Délai max en ms entre les deux sneaks pour valider le double-sneak
   double-sneak-delay: 400
 
-# Messages de connexion / déconnexion simulés lors du passage en vanish
-fake-join-quit-messages:
+# Faux messages de départ / d'arrivée quand un staff active / désactive son vanish,
+# pour que personne ne remarque qu'il est en vanish.
+# Ils reprennent EXACTEMENT les messages de connexion/déconnexion de config.yml
+# (section join-quit : DEFAULT = message vanilla, CUSTOM = ton texte, HIDDEN = aucun message).
+# Seuls les joueurs qui n'ont pas le niveau de voir ce staff les reçoivent.
+fake-messages:
   enabled: true
-  join: "&e%player% joined the game."   # Remplace le message de connexion classique
-  quit: "&e%player% left the game."     # Remplace le message de déconnexion classique
 
-# Messages
+# Cacher les joueurs en vanish dans l'auto-complétion de TOUTES les commandes
+# (/tpa, /tpahere, /msg, /tp, commandes d'autres plugins...).
+# Un joueur ne voit que les vanishés de niveau inférieur ou égal au sien.
+tab-complete:
+  hide-vanished: true
+
+# Messages du système de vanish
 messages:
   enable: "&aVanish activé. &7(niveau &f%level%&7)"
   disable: "&cVanish désactivé."

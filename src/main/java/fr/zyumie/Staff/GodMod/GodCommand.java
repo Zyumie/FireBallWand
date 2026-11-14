@@ -1,6 +1,6 @@
 package fr.zyumie.Staff.GodMod;
 
-import fr.zyumie.Staff.StaffManager;
+import fr.zyumie.Staff.Listener.StaffManager;
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

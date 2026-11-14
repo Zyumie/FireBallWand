@@ -67,7 +67,8 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Player target = Bukkit.getPlayerExact(args[0]);
+        // Un joueur en vanish de niveau supérieur reste « introuvable » (même message qu'un hors-ligne)
+        Player target = plugin.getVanishManager().findVisiblePlayerExact(player, args[0]);
         if (target == null || !target.isOnline()) {
             TpaMessageUtil.sendMessage(player, plugin.getTpaConfigManager().getPrefix(), plugin.getTpaConfigManager().getMessage("player-not-found", "&cJoueur introuvable."));
             return true;
@@ -201,6 +202,7 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
             String current = args[0].toLowerCase();
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (sender instanceof Player pl && p.getUniqueId().equals(pl.getUniqueId())) continue;
+                if (!plugin.getVanishManager().canSee(sender, p)) continue;
                 if (p.getName().toLowerCase().startsWith(current)) completions.add(p.getName());
             }
             return completions;

@@ -4,25 +4,41 @@
 #          ║                by Zyumie                     ║
 #          ╚══════════════════════════════════════════════╝
 #
-#  Mode staff (/staff) et godmod (/godmod, /ungodmod).
+#  Mode staff (/staff), godmod (/godmod, /ungodmod) et vol (/fly).
 #  Codes couleur : &a &c &f etc. + codes HEX &#RRGGBB
 #  Recharger les items et messages : /fw reload
 #  Les interrupteurs "enabled" demandent un redémarrage du serveur.
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  MODE STAFF  (/staff)
-#  Donne des items de modération dans les cases LIBRES de l'inventaire.
-#  Refaire /staff retire les items.
+#  1. Ton inventaire d'origine est sauvegardé sur disque
+#     (plugins/FireBallWand/data/staff/<uuid>.yml).
+#  2. Il est remplacé par le kit de modération.
+#  3. Refaire /staff (ou mourir, ou se déconnecter) le restitue.
+#  Après un crash serveur, il est restauré automatiquement à la reconnexion.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 staff:
   enabled: true
+
+  inventory:
+    # Sauvegarder aussi l'XP (niveau + barre) pendant le mode staff
+    save-xp: false
+
+  # Protections actives uniquement PENDANT le mode staff
+  protections:
+    block-break: true    # ne pas casser de blocs
+    block-place: true    # ne pas poser de blocs
+    item-pickup: true    # ne pas ramasser d'items
+    item-drop: true      # ne pas jeter d'items
+    pvp-damage: true     # ne pas blesser les joueurs (la FreezeWand reste utilisable)
 
   # Chaque item n'est donné que si le joueur a la permission associée :
   #   vanish  → fireballwand.vanish.level.1 (ou plus)
   #   freeze  → fireballwand.freezewand
   #   god     → fireballwand.god
   #   compass → fireballwand.staff.teleport
-  # slot = case de la barre d'action (0 à 8) ; si elle est occupée,
+  #   fly     → fireballwand.fly (et fly.enabled: true)
+  # slot = case de l'inventaire (0 à 8 = barre d'action). Si elle est invalide,
   # le plugin utilise la première case libre.
   items:
     vanish:
@@ -30,8 +46,9 @@ staff:
       material: ENDER_EYE
       slot: 0
     freeze:
-      # Matériau fixe : STONE_SWORD (requis par la FreezeWand)
-      name: "&bBâton de Glace"
+      # Matériau fixe : STONE_SWORD (requis par la FreezeWand).
+      # Le nom suit freezewand.name de CustomCheat.yml, sauf si tu décommentes cette ligne :
+      # name: "&bBâton de Glace"
       slot: 1
     god:
       name: "&6Godmod"
@@ -41,14 +58,34 @@ staff:
       name: "&bBoussole de téléportation"
       material: COMPASS
       slot: 3
+    fly:
+      name: "&fFly"
+      material: FEATHER
+      slot: 4
+
+  # Ouvrir un conteneur SANS bruit ni animation (lecture seule).
+  # Le joueur passe brièvement en spectateur, puis retrouve son gamemode à la fermeture.
+  silent-containers:
+    enabled: true
+    require-vanish: true   # seulement quand le joueur est en vanish
+
+  # Clic droit sur un joueur = voir son inventaire en direct (joueurs en ligne).
+  # Permissions : fireballwand.staff.invsee (voir) / fireballwand.staff.invsee.edit (modifier)
+  invsee:
+    enabled: true
+    require-staff-mode: true
+    require-sneak: false
 
   messages:
     enable: "&7[Staff] &aMode staff activé."
-    disable: "&7[Staff] &cMode staff désactivé."
-    no-space: "&7[Staff] &cLibère au moins &f%count% &ccase(s) dans ton inventaire."
+    disable: "&7[Staff] &cMode staff désactivé. Ton inventaire a été restauré."
     no-permission: "&cTu n'as pas la permission."
+    save-failed: "&7[Staff] &cImpossible de sauvegarder ton inventaire, mode staff annulé."
+    recovered: "&7[Staff] &aTon inventaire a été restauré."
+    died: "&7[Staff] &cMode staff désactivé suite à ta mort. Ton inventaire a été restauré."
     tp: "&7[Staff] &aTéléporté à &f%player%&a."
     tp-none: "&7[Staff] &cAucun joueur à qui te téléporter."
+    invsee-open: "&7[Staff] &aInventaire de &f%player%&a."
     # Messages du godmod (aussi utilisés par l'item Godmod)
     god-enable: "&aGodmod activé."
     god-disable: "&cGodmod désactivé."
@@ -62,3 +99,25 @@ staff:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 god:
   enabled: true
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  FLY  (/fly, /fly <joueur>, /fly speed <1-max> [joueur])
+#  Permissions : fireballwand.fly / .fly.others / .fly.speed
+#  Le vol des joueurs en survie est remis à zéro à la reconnexion (comportement vanilla).
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+fly:
+  enabled: true
+  # Vitesse maximale autorisée (1 = vitesse normale, 10 = maximum du jeu)
+  max-speed: 10
+
+  messages:
+    enable: "&aVol activé."
+    disable: "&cVol désactivé."
+    native: "&7Le vol est déjà actif dans ce mode de jeu."
+    other-enable: "&aVol activé pour &f%player%&a."
+    other-disable: "&cVol désactivé pour &f%player%&c."
+    speed: "&aVitesse de vol : &f%speed%&a."
+    speed-invalid: "&cVitesse invalide (1-%max%)."
+    usage: "&cUsage : /fly [joueur] | /fly speed <1-%max%> [joueur]"
+    no-permission: "&cTu n'as pas la permission."
+    player-not-found: "&cJoueur introuvable : &f%player%"

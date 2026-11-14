@@ -1,5 +1,6 @@
 package fr.zyumie.Chat;
 
+import fr.zyumie.Vanish.Listener.VanishManager;
 import fr.zyumie.fireballwand.Main;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -20,8 +21,25 @@ public class MsgManager {
     // Stocke la dernière relation de message : UUID du joueur -> UUID de son dernier interlocuteur
     private final Map<UUID, UUID> lastMessaged = new HashMap<>();
 
+    // Destinataire -> staff en vanish qui lui a écrit en premier (il peut donc lui répondre avec /r)
+    private final Map<UUID, UUID> hiddenReplyAllowed = new HashMap<>();
+
     public MsgManager(Main plugin) {
         this.plugin = plugin;
+    }
+
+    /** Résout la cible d'un /msg sans jamais révéler un joueur en vanish de niveau supérieur. */
+    public Player findTarget(Player viewer, String name) {
+        return plugin.getVanishManager().findVisiblePlayer(viewer, name);
+    }
+
+    /**
+     * Pour /r : la cible est-elle joignable ? Un joueur en vanish que le viewer ne peut pas voir
+     * reste « hors ligne », sauf s'il a lui-même écrit au viewer.
+     */
+    public boolean canReach(Player viewer, Player target) {
+        if (plugin.getVanishManager().canSee(viewer, target)) return true;
+        return target.getUniqueId().equals(hiddenReplyAllowed.get(viewer.getUniqueId()));
     }
 
 
@@ -105,6 +123,12 @@ public class MsgManager {
         // 5. Envoi des messages
         sender.sendMessage(colorize(finalTo));
         target.sendMessage(colorize(finalFrom));
+
+        // Un staff en vanish qui écrit à quelqu'un choisit de se révéler : on autorise la réponse
+        VanishManager vm = plugin.getVanishManager();
+        if (vm.isVanished(sender) && !vm.canSee(target, sender)) {
+            hiddenReplyAllowed.put(target.getUniqueId(), sender.getUniqueId());
+        }
 
         // 6. Enregistrement de la conversation pour la commande /r
         lastMessaged.put(sender.getUniqueId(), target.getUniqueId());

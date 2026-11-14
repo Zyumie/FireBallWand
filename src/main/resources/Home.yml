@@ -1,0 +1,63 @@
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║          FireBallWand - Home.yml             ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
+#  Système de homes : /home [nom|list], /sethome [nom], /delhome [nom]
+#
+#  Messages : format MiniMessage (<green>, <yellow>, <b>...) OU codes & / &#RRGGBB.
+#  Le format est détecté automatiquement. Placeholders : {home} {seconds} {max}
+#  Recharger : /fw reload  (l'interrupteur "enabled" demande un redémarrage)
+#
+#  Permissions :
+#    fireballwand.home.use / .set / .delete      → utiliser les commandes (tous par défaut)
+#    fireballwand.home.max.1 à .5                → nombre de homes (1 par défaut)
+#    fireballwand.home.bypass.warmup / .cooldown → ignorer l'attente / le cooldown
+#  (les anciennes permissions home.max.N et home.command.* restent acceptées)
+#
+#  Données : plugins/FireBallWand/data/homes/<uuid>.yml (un fichier par joueur).
+#  Les homes de l'ancien plugin Home sont importés automatiquement au premier démarrage.
+
+enabled: true
+
+# Délai d'attente (en secondes) avant la téléportation vers un home (0 = instantané)
+teleport-delay-seconds: 20
+
+# Cooldown (en secondes) entre deux téléportations vers un home (0 = aucun)
+cooldown-seconds: 0
+
+# Annuler la téléportation si le joueur bouge / subit des dégâts pendant l'attente
+cancel-on-move: true
+cancel-on-damage: true
+
+# Longueur maximale du nom d'un home (1 à 32) — lettres, chiffres, - et _ uniquement
+max-name-length: 16
+
+messages:
+  prefix: "<dark_gray>[<aqua>Home<dark_gray>] <gray>"
+
+  # Définition d'un home
+  set-success: "<green>Home <yellow>{home} <green>défini avec succès !"
+  max-limit: "<red>Tu as atteint ton nombre maximum de homes autorisés (<yellow>{max}<red>)."
+  invalid-name: "<red>Nom invalide : lettres, chiffres, - et _ uniquement (<yellow>{max}<red> caractères max)."
+
+  # Suppression d'un home
+  del-success: "<green>Home <yellow>{home} <green>supprimé."
+  del-none: "<red>Tu n'as pas de home défini avec ce nom."
+
+  # Téléportation
+  tp-success: "<green>Téléportation au home effectuée !"
+  tp-none: "<red>Aucun home défini. Utilise <yellow>/sethome [nom]<red> pour en créer un."
+  tp-none-named: "<red>Le home <yellow>{home} <red>n'existe pas."
+  tp-delay-start: "<green>Téléportation dans <yellow>{seconds} secondes<green>. Ne bouge pas !"
+  tp-cancelled: "<red>Téléportation annulée : tu as bougé ou subi des dégâts."
+  cooldown: "<red>Patiente encore <yellow>{seconds}s <red>avant de te téléporter à nouveau."
+  already-pending: "<red>Une téléportation est déjà en cours."
+  world-missing: "<red>Le monde de ce home est introuvable."
+
+  # Erreurs générales & menu
+  no-permission: "<red>Tu n'as pas la permission d'effectuer cette action."
+  players-only: "<red>Commande réservée aux joueurs."
+  gui-title: "<dark_gray>Gestion de vos Homes"
+  gui-empty-slot: "<yellow>Utilise la commande <white>/sethome <nom> <yellow>pour enregistrer un home dans un emplacement libre."

@@ -17,6 +17,36 @@ welcome:
   msg: "&aBienvenue &f%player% &asur le Serveur !"
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  MESSAGES DE CONNEXION / DÉCONNEXION
+#  Message affiché à TOUT LE MONDE quand un joueur arrive ou part.
+#  Également utilisé par le Vanish pour simuler les entrées/sorties.
+#
+#  mode :
+#    DEFAULT → message vanilla, sans modification
+#    CUSTOM  → ton message personnalisé (clé "message")
+#    HIDDEN  → aucun message
+#
+#  Placeholders : %player%  → pseudo
+#                 %prefix%  → préfix LuckPerms (vide si absent)
+#                 %suffix%  → suffix LuckPerms (vide si absent)
+#  Codes couleur : &a &c &f etc. + codes HEX &#RRGGBB
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+join-quit:
+  join:
+    mode: CUSTOM
+    message: "&8[&a+&8] &f%prefix%%player%%suffix% &7a rejoint le serveur"
+
+    # Message spécial à la toute première connexion d'un joueur
+    # (prioritaire sur le mode ci-dessus, même en HIDDEN)
+    first-join:
+      enabled: true
+      message: "&d✦ &f%player% &7rejoint le serveur pour la première fois !"
+
+  quit:
+    mode: CUSTOM
+    message: "&8[&c-&8] &f%prefix%%player%%suffix% &7a quitté le serveur"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  CHAT
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 chat:
@@ -26,26 +56,17 @@ chat:
   #   %suffix%  → suffix LuckPerms (vide si absent)
   #   %message% → contenu du message
   # Tout placeholder PlaceholderAPI est aussi accepté
-  # (ex: %vault_eco_balance_formatted%, %player_world%).
   format: "%prefix%%player%%suffix% &7: &f%message%"
 
   # Couleurs dans le chat
-  # La permission fireballwand.chat.color doit être accordée pour &codes classiques.
-  # La permission fireballwand.chat.color.hex pour les codes &#RRGGBB.
   color:
     enabled: true
 
   # Intégration PlaceholderAPI
-  # Nécessite PlaceholderAPI en soft-depend.
-  # Parse le format, le préfix/suffix et le message de bienvenue.
-  # Les placeholders tapés par un joueur dans son message ne sont parsés
-  # que s'il a la permission fireballwand.chat.placeholders.
   placeholderapi:
     enabled: true
 
   # Intégration ItemsAdder (grades en image dans le chat)
-  # Nécessite ItemsAdder en soft-depend.
-  # Le préfix LuckPerms doit contenir le placeholder ItemsAdder (:namespace:icon:)
   itemsadder:
     enabled: true
 
@@ -54,9 +75,8 @@ chat:
   vanish-chat-warning: "&7[Vanish] &cMettez &f/ &cen fin de message pour envoyer."
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  Msg
+#  MESSAGES PRIVÉS (MSG)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 messages:
   format-to: "&7[To &f%target%&7] &f%message%"
   format-from: "&7[From &f%sender%&7] &f%message%"

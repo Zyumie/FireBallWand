@@ -1,4 +1,4 @@
-package fr.zyumie.Staff;
+package fr.zyumie.Staff.Listener;
 
 import fr.zyumie.Chat.ChatManager;
 import fr.zyumie.fireballwand.Main;
@@ -8,6 +8,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -18,9 +19,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Mode staff : donne des items de modération (vanish, freeze, godmod, boussole)
- * dans les cases LIBRES de l'inventaire — rien n'est remplacé, donc rien ne peut
- * être perdu. Refaire /staff retire simplement tous les items marqués.
+ * Mode staff : l'inventaire d'origine est sauvegardé sur disque (StaffInventoryStore),
+ * remplacé par le kit de modération, puis restitué à la sortie du mode.
  */
 public class StaffManager {
 
@@ -28,8 +28,14 @@ public class StaffManager {
     public static final String FREEZE  = "FREEZE";
     public static final String GOD     = "GOD";
     public static final String COMPASS = "COMPASS";
+    public static final String FLY     = "FLY";
+
+    // Gère le format hex produit par ChatManager.colorize (§x§r§r§g§g§b§b)
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
+            .character('§').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
     private final Main plugin;
+    private final StaffInventoryStore store;
     private final NamespacedKey itemKey;
     private final NamespacedKey freezeKey; // même clé que freezewand → son listener reconnaît l'item
 
@@ -40,14 +46,24 @@ public class StaffManager {
 
     public StaffManager(Main plugin) {
         this.plugin = plugin;
+        this.store = new StaffInventoryStore(plugin);
         this.itemKey = new NamespacedKey(plugin, "staff_item");
         this.freezeKey = new NamespacedKey(plugin, "freeze_wand");
     }
 
-    // ── Messages ─────────────────────────────────────────────────────────────
+    private FileConfiguration cfg() {
+        return plugin.getStaffConfig();
+    }
+
+    // ── Messages & options ───────────────────────────────────────────────────
 
     public String msg(String key, String def) {
-        return ChatManager.colorize(plugin.getStaffConfig().getString("staff.messages." + key, def));
+        return ChatManager.colorize(cfg().getString("staff.messages." + key, def));
+    }
+
+    /** Protections du mode staff (staff.protections.<key>), actives par défaut. */
+    public boolean protection(String key) {
+        return cfg().getBoolean("staff.protections." + key, true);
     }
 
     // ── État ─────────────────────────────────────────────────────────────────
@@ -56,7 +72,6 @@ public class StaffManager {
         return staffMode.contains(player.getUniqueId());
     }
 
-    /** Oublie l'état sans toucher à l'inventaire (ex : mort sans keepInventory). */
     public void forget(Player player) {
         staffMode.remove(player.getUniqueId());
         compassIndex.remove(player.getUniqueId());
@@ -67,54 +82,64 @@ public class StaffManager {
     public void toggle(Player player) {
         if (isInStaffMode(player)) {
             disable(player);
-            player.sendMessage(msg("disable", "&7[Staff] &cMode staff désactivé."));
+            player.sendMessage(msg("disable", "&7[Staff] &cMode staff désactivé. Ton inventaire a été restauré."));
         } else if (enable(player)) {
             player.sendMessage(msg("enable", "&7[Staff] &aMode staff activé."));
         }
     }
 
     public boolean enable(Player player) {
-        List<Pending> pending = new ArrayList<>();
+        if (isInStaffMode(player)) return false;
+        UUID id = player.getUniqueId();
 
-        if (plugin.getVanishManager().canVanish(player)) {
-            pending.add(new Pending(build(VANISH, Material.ENDER_EYE, "&5Vanish",
-                    "&7Clic droit : activer/désactiver le vanish"), slot(VANISH, 0)));
-        }
-        if (player.hasPermission("fireballwand.freezewand")) {
-            pending.add(new Pending(buildFreeze(), slot(FREEZE, 1)));
-        }
-        if (player.hasPermission("fireballwand.god")) {
-            pending.add(new Pending(build(GOD, Material.TOTEM_OF_UNDYING, "&6Godmod",
-                    "&7Clic droit : activer/désactiver le godmod"), slot(GOD, 2)));
-        }
-        if (player.hasPermission("fireballwand.staff.teleport")) {
-            pending.add(new Pending(build(COMPASS, Material.COMPASS, "&bBoussole de téléportation",
-                    "&7Clic droit : te téléporter au joueur suivant"), slot(COMPASS, 3)));
-        }
-
-        PlayerInventory inv = player.getInventory();
-        int free = 0;
-        for (int i = 0; i < 36; i++) if (inv.getItem(i) == null) free++;
-
-        if (free < pending.size()) {
-            player.sendMessage(msg("no-space", "&7[Staff] &cLibère au moins &f%count% &ccase(s) dans ton inventaire.")
-                    .replace("%count%", String.valueOf(pending.size())));
+        // Sauvegarde oubliée (crash) : on la restaure d'abord pour ne jamais l'écraser
+        if (store.hasSnapshot(id) && !store.restore(player)) {
+            player.sendMessage(msg("save-failed", "&7[Staff] &cImpossible de sauvegarder ton inventaire, mode staff annulé."));
             return false;
         }
 
-        for (Pending p : pending) {
-            int target = (p.slot() >= 0 && p.slot() < 9 && inv.getItem(p.slot()) == null)
-                    ? p.slot() : inv.firstEmpty();
-            inv.setItem(target, p.item());
+        List<Pending> kit = buildKit(player);
+        boolean saveXp = cfg().getBoolean("staff.inventory.save-xp", false);
+
+        // Écriture sur disque AVANT de vider l'inventaire
+        if (!store.save(player, saveXp)) {
+            player.sendMessage(msg("save-failed", "&7[Staff] &cImpossible de sauvegarder ton inventaire, mode staff annulé."));
+            return false;
         }
 
-        staffMode.add(player.getUniqueId());
+        player.closeInventory();
+        player.setItemOnCursor(null);
+
+        PlayerInventory inv = player.getInventory();
+        inv.clear();
+
+        for (Pending p : kit) {
+            int slot = (p.slot() >= 0 && p.slot() < 36 && inv.getItem(p.slot()) == null)
+                    ? p.slot() : inv.firstEmpty();
+            if (slot >= 0) inv.setItem(slot, p.item());
+        }
+
+        if (saveXp) {
+            player.setLevel(0);
+            player.setExp(0f);
+        }
+
+        staffMode.add(id);
         return true;
     }
 
+    /** Sortie du mode : restaure l'inventaire d'origine. */
     public void disable(Player player) {
-        removeStaffItems(player);
+        if (!store.restore(player)) {
+            removeStaffItems(player); // pas de sauvegarde lisible : on retire au moins le kit
+        }
         forget(player);
+    }
+
+    /** Restauration après crash (appelée à la connexion). */
+    public boolean recover(Player player) {
+        if (isInStaffMode(player) || !store.hasSnapshot(player.getUniqueId())) return false;
+        return store.restore(player);
     }
 
     public void disableAll() {
@@ -124,7 +149,32 @@ public class StaffManager {
         staffMode.clear();
     }
 
-    // ── Items ────────────────────────────────────────────────────────────────
+    // ── Kit ──────────────────────────────────────────────────────────────────
+
+    private List<Pending> buildKit(Player player) {
+        List<Pending> kit = new ArrayList<>();
+
+        if (plugin.getVanishManager().canVanish(player)) {
+            kit.add(new Pending(build(VANISH, Material.ENDER_EYE, "&5Vanish",
+                    "&7Clic droit : activer/désactiver le vanish"), slot(VANISH, 0)));
+        }
+        if (player.hasPermission("fireballwand.freezewand")) {
+            kit.add(new Pending(buildFreeze(), slot(FREEZE, 1)));
+        }
+        if (player.hasPermission("fireballwand.god")) {
+            kit.add(new Pending(build(GOD, Material.TOTEM_OF_UNDYING, "&6Godmod",
+                    "&7Clic droit : activer/désactiver le godmod"), slot(GOD, 2)));
+        }
+        if (player.hasPermission("fireballwand.staff.teleport")) {
+            kit.add(new Pending(build(COMPASS, Material.COMPASS, "&bBoussole de téléportation",
+                    "&7Clic droit : te téléporter au joueur suivant"), slot(COMPASS, 3)));
+        }
+        if (cfg().getBoolean("fly.enabled", true) && player.hasPermission("fireballwand.fly")) {
+            kit.add(new Pending(build(FLY, Material.FEATHER, "&fFly",
+                    "&7Clic droit : activer/désactiver le vol"), slot(FLY, 4)));
+        }
+        return kit;
+    }
 
     public boolean isStaffItem(ItemStack item) {
         return getItemId(item) != null;
@@ -144,22 +194,24 @@ public class StaffManager {
     }
 
     private int slot(String id, int def) {
-        return plugin.getStaffConfig().getInt("staff.items." + id.toLowerCase() + ".slot", def);
+        return cfg().getInt("staff.items." + id.toLowerCase() + ".slot", def);
     }
 
     private ItemStack build(String id, Material defMat, String defName, String defLore) {
         String path = "staff.items." + id.toLowerCase();
 
-        Material mat = Material.matchMaterial(plugin.getStaffConfig().getString(path + ".material", defMat.name()));
+        Material mat = Material.matchMaterial(cfg().getString(path + ".material", defMat.name()));
         if (mat == null || mat.isAir()) mat = defMat;
 
-        String name = plugin.getStaffConfig().getString(path + ".name", defName);
-        return tag(new ItemStack(mat), id, name, defLore);
+        return tag(new ItemStack(mat), id, cfg().getString(path + ".name", defName), defLore);
     }
 
     private ItemStack buildFreeze() {
         // STONE_SWORD + clé "freeze_wand" : requis par freezewand.isFreezeWand()
-        String name = plugin.getStaffConfig().getString("staff.items.freeze.name", "&bBâton de Glace");
+        // Nom : Staff.yml si renseigné, sinon celui de CustomCheat.yml (freezewand.name)
+        String name = cfg().getString("staff.items.freeze.name",
+                plugin.getCustomCheatConfig().getString("freezewand.name", "&bBâton de Glace"));
+
         ItemStack item = tag(new ItemStack(Material.STONE_SWORD), FREEZE, name,
                 "&7Frappe un joueur pour le geler/dégeler");
 
@@ -179,9 +231,7 @@ public class StaffManager {
     }
 
     private Component legacy(String text) {
-        return LegacyComponentSerializer.legacySection()
-                .deserialize(ChatManager.colorize(text))
-                .decoration(TextDecoration.ITALIC, false);
+        return LEGACY.deserialize(ChatManager.colorize(text)).decoration(TextDecoration.ITALIC, false);
     }
 
     // ── Boussole ─────────────────────────────────────────────────────────────

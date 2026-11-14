@@ -59,7 +59,7 @@ public class StartKitManager implements Listener, CommandExecutor, TabCompleter 
                 return true;
             }
 
-            Player target = Bukkit.getPlayerExact(args[0]);
+            Player target = plugin.getVanishManager().findVisiblePlayerExact(sender, args[0]);
             if (target == null || !target.isOnline()) {
                 sender.sendMessage(ChatManager.colorize("&cJoueur introuvable ou hors ligne : &f" + args[0]));
                 return true;
@@ -130,6 +130,7 @@ public class StartKitManager implements Listener, CommandExecutor, TabCompleter 
             List<String> completions = new ArrayList<>();
             String current = args[0].toLowerCase();
             for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!plugin.getVanishManager().canSee(sender, p)) continue;
                 if (p.getName().toLowerCase().startsWith(current)) {
                     completions.add(p.getName());
                 }

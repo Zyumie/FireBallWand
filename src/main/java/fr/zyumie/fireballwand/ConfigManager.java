@@ -22,6 +22,12 @@ public class ConfigManager implements Listener {
     private File startKitFile;
     private FileConfiguration startKitConfig;
 
+    private File homeFile;
+    private FileConfiguration homeConfig;
+
+    private File spawnFile;
+    private FileConfiguration spawnConfig;
+
     public ConfigManager(Main plugin) {
         this.plugin = plugin;
         loadConfigs();
@@ -66,6 +72,28 @@ public class ConfigManager implements Listener {
         if (kitStream != null) {
             startKitConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(kitStream, StandardCharsets.UTF_8)));
         }
+
+        // ── Home.yml ─────────────────────────────────────────────────────────
+        homeFile = new File(plugin.getDataFolder(), "Home.yml");
+        if (!homeFile.exists()) {
+            plugin.saveResource("Home.yml", false);
+        }
+        homeConfig = YamlConfiguration.loadConfiguration(homeFile);
+        InputStream homeStream = plugin.getResource("Home.yml");
+        if (homeStream != null) {
+            homeConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(homeStream, StandardCharsets.UTF_8)));
+        }
+
+        // ── Spawn.yml ────────────────────────────────────────────────────────
+        spawnFile = new File(plugin.getDataFolder(), "Spawn.yml");
+        if (!spawnFile.exists()) {
+            plugin.saveResource("Spawn.yml", false);
+        }
+        spawnConfig = YamlConfiguration.loadConfiguration(spawnFile);
+        InputStream spawnStream = plugin.getResource("Spawn.yml");
+        if (spawnStream != null) {
+            spawnConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(spawnStream, StandardCharsets.UTF_8)));
+        }
     }
 
     public FileConfiguration getVanishConfig() {
@@ -78,6 +106,14 @@ public class ConfigManager implements Listener {
 
     public FileConfiguration getStartKitConfig() {
         return startKitConfig;
+    }
+
+    public FileConfiguration getHomeConfig() {
+        return homeConfig;
+    }
+
+    public FileConfiguration getSpawnConfig() {
+        return spawnConfig;
     }
 
     public void reload() {

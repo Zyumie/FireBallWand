@@ -55,7 +55,7 @@ public class kickarmor implements Listener, CommandExecutor {
 
         for (Entity entity : wearer.getNearbyEntities(radius, radius, radius)) {
             if (entity instanceof Player target) {
-                if (target.equals(wearer) || target.isOp()) continue;
+                if (target.equals(wearer) || target.isOp() || plugin.getVanishManager().isVanished(target)) continue;
 
                 target.kickPlayer(kickMsg);
             }

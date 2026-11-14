@@ -1,13 +1,19 @@
-package fr.zyumie.Staff;
+package fr.zyumie.Staff.Listener;
 
+import fr.zyumie.Staff.Fly.FlyManager;
 import fr.zyumie.Staff.GodMod.GodManager;
 import fr.zyumie.fireballwand.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
@@ -19,6 +25,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -39,6 +46,11 @@ public class StaffListener implements Listener {
 
     private StaffManager staff() { return plugin.getStaffManager(); }
     private GodManager god()     { return plugin.getGodManager(); }
+    private FlyManager fly()     { return plugin.getFlyManager(); }
+
+    private boolean blocked(Player player, String protectionKey) {
+        return staff().isInStaffMode(player) && staff().protection(protectionKey);
+    }
 
     // ── Utilisation des items (clic droit) ───────────────────────────────────
 
@@ -69,15 +81,56 @@ public class StaffListener implements Listener {
                     ? staff().msg("god-enable", "&aGodmod activé.")
                     : staff().msg("god-disable", "&cGodmod désactivé."));
             case StaffManager.COMPASS -> staff().teleportNext(player);
+            case StaffManager.FLY     -> {
+                Boolean state = fly().toggle(player);
+                if (state == null) {
+                    player.sendMessage(fly().msg("native", "&7Le vol est déjà actif dans ce mode de jeu."));
+                } else {
+                    player.sendMessage(state
+                            ? fly().msg("enable", "&aVol activé.")
+                            : fly().msg("disable", "&cVol désactivé."));
+                }
+            }
             default -> { }
         }
     }
 
-    // ── Protection des items staff ───────────────────────────────────────────
+    // ── Protections du mode staff ────────────────────────────────────────────
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (blocked(event.getPlayer(), "block-break")) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (blocked(event.getPlayer(), "block-place")) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPickup(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player player && blocked(player, "item-pickup")) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHitPlayer(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player damager)) return;
+        if (!(event.getEntity() instanceof Player)) return;
+        if (!blocked(damager, "pvp-damage")) return;
+
+        // Le bâton de glace reste utilisable : freezewand gère lui-même le coup
+        String held = staff().getItemId(damager.getInventory().getItemInMainHand());
+        if (StaffManager.FREEZE.equals(held)) return;
+
+        event.setCancelled(true);
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent event) {
-        if (staff().isStaffItem(event.getItemDrop().getItemStack())) {
+        Player player = event.getPlayer();
+        if (staff().isStaffItem(event.getItemDrop().getItemStack()) || blocked(player, "item-drop")) {
             event.setCancelled(true);
         }
     }
@@ -129,49 +182,74 @@ public class StaffListener implements Listener {
         }
     }
 
-    // ── Mort / connexion / déconnexion ───────────────────────────────────────
+    // ── Mort / respawn ───────────────────────────────────────────────────────
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         if (!staff().isInStaffMode(player)) return;
 
-        // Les items staff ne doivent jamais tomber au sol
-        event.getDrops().removeIf(staff()::isStaffItem);
-
-        // Sans keepInventory, l'inventaire est vidé : le mode staff prend fin.
-        // Avec keepInventory, les items sont conservés et le mode continue.
-        if (!event.getKeepInventory()) {
-            staff().forget(player);
-        }
+        // L'inventaire d'origine est en sécurité sur disque : rien ne doit tomber au sol
+        event.getDrops().clear();
+        event.setKeepLevel(true);
+        event.setDroppedExp(0);
     }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (!staff().isInStaffMode(player)) return;
+
+        // Un tick après le respawn : on rend l'inventaire d'origine et on quitte le mode staff
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline() || !staff().isInStaffMode(player)) return;
+            staff().disable(player);
+            player.sendMessage(staff().msg("died",
+                    "&7[Staff] &cMode staff désactivé suite à ta mort. Ton inventaire a été restauré."));
+        });
+    }
+
+    // ── Connexion / déconnexion ──────────────────────────────────────────────
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (staff().isInStaffMode(player)) staff().disable(player);
         god().disable(player);
+        fly().clear(player);
         lastUse.remove(player.getUniqueId());
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // Nettoyage de sécurité (crash serveur en plein mode staff, etc.)
         Player player = event.getPlayer();
-        if (!staff().isInStaffMode(player)) {
-            staff().removeStaffItems(player);
+        if (staff().isInStaffMode(player)) return;
+
+        // Sauvegarde trouvée au login = crash pendant un mode staff → on rend l'inventaire
+        if (staff().recover(player)) {
+            player.sendMessage(staff().msg("recovered", "&7[Staff] &aTon inventaire a été restauré."));
+        } else {
+            staff().removeStaffItems(player); // nettoyage de sécurité
         }
     }
 
-    // ── Godmod ───────────────────────────────────────────────────────────────
+    // ── Godmod & protection de chute (fly) ───────────────────────────────────
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+
+        EntityDamageEvent.DamageCause cause = event.getCause();
+
+        // Vol désactivé en l'air : on ignore la chute qui suit
+        if (cause == EntityDamageEvent.DamageCause.FALL && fly().consumeFallGrace(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!god().isGod(player)) return;
 
         // On laisse passer le vide et /kill pour ne pas bloquer le joueur en chute infinie
-        EntityDamageEvent.DamageCause cause = event.getCause();
         if (cause == EntityDamageEvent.DamageCause.VOID || cause == EntityDamageEvent.DamageCause.KILL) return;
 
         event.setCancelled(true);

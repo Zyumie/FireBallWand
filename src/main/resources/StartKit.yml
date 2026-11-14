@@ -1,7 +1,9 @@
-# ==========================================
-#        FireBallWand - StartKit Config
-#                by Zyumie
-# ==========================================
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║       FireBallWand - StartKit.yml            ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
 
 settings:
   # Activer ou désactiver l'attribution du kit à la première connexion

@@ -35,7 +35,7 @@ public class MsgCommand implements CommandExecutor {
             }
 
             Player target = Bukkit.getPlayer(targetUUID);
-            if (target == null || !target.isOnline()) {
+            if (target == null || !target.isOnline() || !msgManager.canReach(player, target)) {
                 player.sendMessage(MsgManager.colorize("&cLa personne à qui vous voulez répondre n'est plus en ligne."));
                 return true;
             }
@@ -57,7 +57,7 @@ public class MsgCommand implements CommandExecutor {
             return true;
         }
 
-        Player target = Bukkit.getPlayer(args[0]);
+        Player target = msgManager.findTarget(player, args[0]);
         if (target == null || !target.isOnline()) {
             player.sendMessage(MsgManager.colorize("&cJoueur introuvable ou hors-ligne."));
             return true;

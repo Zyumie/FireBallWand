@@ -1,5 +1,6 @@
 package fr.zyumie.Staff;
 
+import fr.zyumie.Staff.Listener.StaffManager;
 import fr.zyumie.fireballwand.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

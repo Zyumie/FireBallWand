@@ -14,17 +14,30 @@ import fr.zyumie.Listener.VersionManager;
 import fr.zyumie.SoftDepend.ItemsAdderHook;
 import fr.zyumie.SoftDepend.LuckPermsHook;
 import fr.zyumie.SoftDepend.PlaceholderAPIHook;
+import fr.zyumie.Staff.Fly.FlyCommand;
+import fr.zyumie.Staff.Fly.FlyManager;
 import fr.zyumie.Staff.GodMod.GodCommand;
 import fr.zyumie.Staff.GodMod.GodManager;
 import fr.zyumie.Staff.StaffCommand;
 import fr.zyumie.Staff.StaffConfig;
-import fr.zyumie.Staff.StaffListener;
-import fr.zyumie.Staff.StaffManager;
+import fr.zyumie.Staff.Listener.StaffListener;
+import fr.zyumie.Staff.Listener.StaffManager;
+import fr.zyumie.Staff.Listener.StaffToolsListener;
+import fr.zyumie.Listener.JoinQuitListener;
+import fr.zyumie.Home.HomeCommands;
+import fr.zyumie.Home.HomeListener;
+import fr.zyumie.Home.HomeManager;
+import fr.zyumie.Home.HomeMigration;
+import fr.zyumie.Spawn.SpawnCommands;
+import fr.zyumie.Spawn.SpawnListener;
+import fr.zyumie.Spawn.SpawnManager;
+import fr.zyumie.Teleport.WarmupService;
 import fr.zyumie.TPA.TpaCommand;
 import fr.zyumie.Vanish.Listener.ServerListListener;
 import fr.zyumie.Vanish.VanishCommand;
 import fr.zyumie.Vanish.Listener.VanishListener;
 import fr.zyumie.Vanish.Listener.VanishManager;
+import fr.zyumie.Vanish.Listener.VanishSuggestionsListener;
 
 import fr.zyumie.TPA.Listener.TpaConfigManager;
 import fr.zyumie.TPA.Listener.TpaManager;
@@ -47,6 +60,11 @@ public class Main extends JavaPlugin {
     private StaffConfig      staffConfig;
     private StaffManager     staffManager;
     private GodManager       godManager;
+    private FlyManager       flyManager;
+    private IceBoots         iceBoots;
+    private WarmupService    warmupService;
+    private HomeManager      homeManager;
+    private SpawnManager     spawnManager;
 
     private TpaConfigManager tpaConfigManager;
     private TpaManager tpaManager;
@@ -99,10 +117,12 @@ public class Main extends JavaPlugin {
         if (getCommand("vanish") != null) getCommand("vanish").setExecutor(new VanishCommand(this));
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new ServerListListener(this), this);
+        getServer().getPluginManager().registerEvents(new VanishSuggestionsListener(this), this);
 
         // ── Staff / Godmod (config : Staff.yml) ──────────────────────────────
         // Les managers sont toujours créés (très légers) : les messages en dépendent.
         godManager = new GodManager();
+        flyManager = new FlyManager(this);
         staffManager = new StaffManager(this);
 
         boolean staffEnabled = getStaffConfig().getBoolean("staff.enabled", true);
@@ -124,9 +144,55 @@ public class Main extends JavaPlugin {
             bind("ungodmod", disabled);
         }
 
-        // Le listener sert aux deux fonctionnalités : inutile de l'enregistrer si les deux sont coupées
-        if (staffEnabled || godEnabled) {
+        boolean flyEnabled = getStaffConfig().getBoolean("fly.enabled", true);
+
+        FlyCommand flyCommand = new FlyCommand(this);
+        if (getCommand("fly") != null) {
+            getCommand("fly").setExecutor(flyEnabled ? flyCommand : disabled);
+            if (flyEnabled) getCommand("fly").setTabCompleter(flyCommand);
+        }
+
+        // StaffListener : mode staff, godmod et protection de chute du fly
+        if (staffEnabled || godEnabled || flyEnabled) {
             getServer().getPluginManager().registerEvents(new StaffListener(this), this);
+        }
+
+        // Conteneurs silencieux + invsee
+        if (staffEnabled) {
+            getServer().getPluginManager().registerEvents(new StaffToolsListener(this), this);
+        }
+
+        // ── Home & Spawn (configs : Home.yml, Spawn.yml) ─────────────────────
+        // Un seul service d'attente / cooldown partagé : un seul jeu d'écouteurs de déplacement
+        warmupService = new WarmupService(this);
+
+        String[] homeCommandNames = {"home", "sethome", "delhome"};
+        if (getHomeConfig().getBoolean("enabled", true)) {
+            homeManager = new HomeManager(this);
+            HomeMigration.run(this, homeManager);
+
+            HomeCommands homeCommands = new HomeCommands(this, homeManager, warmupService);
+            for (String name : homeCommandNames) {
+                if (getCommand(name) != null) {
+                    getCommand(name).setExecutor(homeCommands);
+                    getCommand(name).setTabCompleter(homeCommands);
+                }
+            }
+            getServer().getPluginManager().registerEvents(new HomeListener(this, homeManager, homeCommands), this);
+        } else {
+            for (String name : homeCommandNames) bind(name, disabled);
+        }
+
+        String[] spawnCommandNames = {"spawn", "setspawn"};
+        if (getSpawnConfig().getBoolean("enabled", true)) {
+            spawnManager = new SpawnManager(this);
+            spawnManager.load();
+
+            SpawnCommands spawnCommands = new SpawnCommands(this, spawnManager, warmupService);
+            for (String name : spawnCommandNames) bind(name, spawnCommands);
+            getServer().getPluginManager().registerEvents(new SpawnListener(this, spawnManager), this);
+        } else {
+            for (String name : spawnCommandNames) bind(name, disabled);
         }
 
         // ── TPA System ───────────────────────────────────────────────────────
@@ -184,6 +250,19 @@ public class Main extends JavaPlugin {
         }
         getServer().getPluginManager().registerEvents(potionOfDeath, this);
 
+        // ── Funny Items : Snowball maudite, Sword Up, Ice Boots ──────────────
+        NegativeSnowball negativeSnowball = new NegativeSnowball(this);
+        bind("negativesnowball", negativeSnowball);
+        getServer().getPluginManager().registerEvents(negativeSnowball, this);
+
+        SwordUp swordUp = new SwordUp(this);
+        bind("swordup", swordUp);
+        getServer().getPluginManager().registerEvents(swordUp, this);
+
+        iceBoots = new IceBoots(this);
+        bind("iceboots", iceBoots);
+        getServer().getPluginManager().registerEvents(iceBoots, this);
+
         if (getCommand("cheatsword") != null) getCommand("cheatsword").setExecutor(new cheatsword(this));
         if (getCommand("cheatmace") != null) getCommand("cheatmace").setExecutor(new cheatmace(this));
         if (getCommand("diamond_armorcheat") != null) getCommand("diamond_armorcheat").setExecutor(new diamond_armorcheat(this));
@@ -207,6 +286,7 @@ public class Main extends JavaPlugin {
 
         // ── Listeners généraux ───────────────────────────────────────────────
         getServer().getPluginManager().registerEvents(new ChatManager(this), this);
+        getServer().getPluginManager().registerEvents(new JoinQuitListener(this), this);
 
         // ── Version check ────────────────────────────────────────────────────
         VersionManager.check(this);
@@ -219,6 +299,9 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if (staffManager != null) staffManager.disableAll();
+        if (iceBoots != null) iceBoots.shutdown();
+        if (homeManager != null) homeManager.saveAll();
+        if (warmupService != null) warmupService.shutdown();
         if (godManager != null) godManager.clear();
         if (vanishManager != null) vanishManager.clear();
         if (tpaTeleportManager != null) tpaTeleportManager.cancelAll();
@@ -243,15 +326,26 @@ public class Main extends JavaPlugin {
 
     public StaffManager getStaffManager() { return staffManager; }
     public GodManager   getGodManager()   { return godManager;   }
+    public FlyManager   getFlyManager()   { return flyManager;   }
 
     /** Contenu de Staff.yml. */
     public FileConfiguration getStaffConfig() {
         return staffConfig.get();
     }
 
-    /** À appeler depuis /fw reload pour recharger Staff.yml. */
+    /** Recharge Staff.yml uniquement. */
     public void reloadStaffConfig() {
         staffConfig.reload();
+    }
+
+    /**
+     * Recharge tous les fichiers de configuration : config.yml, Vanish.yml, CustomCheat.yml,
+     * StartKit.yml (ConfigManager), Staff.yml et Tpa.yml. Appelé par /fw reload.
+     */
+    public void reloadAll() {
+        customConfigManager.reload();
+        staffConfig.reload();
+        tpaConfigManager.loadConfig();
     }
 
     public FileConfiguration getVanishConfig() {
@@ -260,6 +354,14 @@ public class Main extends JavaPlugin {
 
     public FileConfiguration getCustomCheatConfig() {
         return customConfigManager.getCustomCheatConfig();
+    }
+
+    public FileConfiguration getHomeConfig() {
+        return customConfigManager.getHomeConfig();
+    }
+
+    public FileConfiguration getSpawnConfig() {
+        return customConfigManager.getSpawnConfig();
     }
 
     public FileConfiguration getStartKitConfig() {

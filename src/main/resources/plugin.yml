@@ -64,6 +64,42 @@ commands:
     aliases: [ pod ]
     permission: fireballwand.potion-of-death
 
+  negativesnowball:
+    description: Donne des Snowballs à effets négatifs
+    usage: /negativesnowball
+    aliases: [ nsnow ]
+    permission: fireballwand.negativesnowball
+
+  swordup:
+    description: Donne la Sword Up (lévitation au coup)
+    usage: /swordup
+    permission: fireballwand.swordup
+
+  iceboots:
+    description: Donne les Ice Boots (glisse sur tous les blocs)
+    usage: /iceboots
+    permission: fireballwand.iceboots
+
+  home:
+    description: Te téléporte à un home ou ouvre le menu (/home list)
+    usage: /home [nom|list]
+
+  sethome:
+    description: Définit un home à ta position actuelle
+    usage: /sethome [nom]
+
+  delhome:
+    description: Supprime un de tes homes
+    usage: /delhome [nom]
+
+  spawn:
+    description: Te téléporte au spawn
+    usage: /spawn
+
+  setspawn:
+    description: Définit le spawn à ta position actuelle
+    usage: /setspawn
+
   starterkit:
     description: Récupérer le kit de départ.
     usage: /starterkit <joueur>
@@ -102,6 +138,10 @@ commands:
     usage: /ungodmod
     aliases: [ugm]
     permission: fireballwand.god
+
+  fly:
+    description: Active/désactive le vol ou règle la vitesse de vol
+    usage: /fly [joueur] | /fly speed <1-10> [joueur]
 
   # ── Commandes TPA ──────────────────────────────────────────────────────────
   tpa:
@@ -191,6 +231,85 @@ permissions:
     description: Immunise contre la Potion of Death
     default: op
 
+  # ── Funny Items (une permission de give dédiée par item) ───────────────────
+  fireballwand.negativesnowball:
+    description: Permet de se give les Snowballs à effets négatifs
+    default: op
+
+  fireballwand.negativesnowball.bypass:
+    description: Immunise contre les Snowballs à effets négatifs
+    default: op
+
+  fireballwand.swordup:
+    description: Permet de se give la Sword Up
+    default: op
+
+  fireballwand.swordup.bypass:
+    description: Immunise contre la lévitation de la Sword Up
+    default: op
+
+  fireballwand.iceboots:
+    description: Permet de se give les Ice Boots
+    default: op
+
+  # ── Home ───────────────────────────────────────────────────────────────────
+  fireballwand.home.use:
+    description: Utiliser /home
+    default: true
+
+  fireballwand.home.set:
+    description: Utiliser /sethome
+    default: true
+
+  fireballwand.home.delete:
+    description: Utiliser /delhome
+    default: true
+
+  fireballwand.home.max.1:
+    description: Autorise 1 home maximum
+    default: true
+
+  fireballwand.home.max.2:
+    description: Autorise 2 homes maximum
+    default: op
+
+  fireballwand.home.max.3:
+    description: Autorise 3 homes maximum
+    default: op
+
+  fireballwand.home.max.4:
+    description: Autorise 4 homes maximum
+    default: op
+
+  fireballwand.home.max.5:
+    description: Autorise 5 homes maximum
+    default: op
+
+  fireballwand.home.bypass.warmup:
+    description: Se téléporter à un home sans attendre
+    default: op
+
+  fireballwand.home.bypass.cooldown:
+    description: Ignorer le cooldown de /home
+    default: op
+
+  # ── Spawn ──────────────────────────────────────────────────────────────────
+  fireballwand.spawn.use:
+    description: Utiliser /spawn
+    default: true
+
+  fireballwand.spawn.set:
+    description: Utiliser /setspawn
+    default: op
+
+  fireballwand.spawn.bypass.warmup:
+    description: Se téléporter au spawn sans attendre
+    default: op
+
+  fireballwand.spawn.bypass.cooldown:
+    description: Ignorer le cooldown de /spawn
+    default: op
+
   # ── Staff / Godmod ─────────────────────────────────────────────────────────
   fireballwand.staff:
     description: Permet d'utiliser /staff (mode staff)
@@ -202,6 +321,27 @@ permissions:
 
   fireballwand.god:
     description: Permet d'utiliser /godmod, /ungodmod et l'item Godmod
+    default: op
+
+  fireballwand.staff.invsee:
+    description: Voir l'inventaire d'un joueur (clic droit) en mode staff
+    default: op
+
+  fireballwand.staff.invsee.edit:
+    description: Modifier l'inventaire d'un joueur ouvert via l'invsee
+    default: false
+
+  # ── Fly ────────────────────────────────────────────────────────────────────
+  fireballwand.fly:
+    description: Permet d'utiliser /fly et la plume du mode staff
+    default: op
+
+  fireballwand.fly.others:
+    description: Permet d'activer le vol d'un autre joueur
+    default: op
+
+  fireballwand.fly.speed:
+    description: Permet d'utiliser /fly speed
     default: op
 
   # ── Kit / StartKit ─────────────────────────────────────────────────────────
