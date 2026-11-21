@@ -19,18 +19,18 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 /**
- * Importe les anciennes économies vers plugins/FireBallWand/money-data.yml.
+ * Importe les anciennes économies vers plugins/FireBallWand/data/money.yml.
  *
  * Sources reconnues :
- * - plugins/Main ou MainPlugin/data/money.yml : UUID -> balance
- * - plugins/Money/money-data.yml : balances -> UUID -> montant
+ * - plugins/FireBallWand/money-data.yml : ancien fichier de stockage FireBallWand
+ * - MainAPI (DataStore YAML ou MySQL), puis les fichiers data/money.yml de Main ou MainPlugin
+ * - plugins/Money/money-data.yml et plugins/Money/data/money.yml
  * - plugins/Essentials/userdata/UUID.yml : money
  * - plugins/FireBallWand/migration-source.yml : l'un des formats YAML ci-dessus
  *
- * Les sources sont examinées dans l'ordre de priorité. Si plusieurs sources
- * existent, les soldes déjà importés depuis une source prioritaire sont conservés.
- * Les fichiers source ne sont jamais modifiés ; une copie .pre-migration.bak
- * est créée avant l'import.
+ * Les soldes déjà présents dans la cible sont prioritaires. Pour chaque UUID
+ * absent, la première source valide rencontrée fournit le solde. Les sources
+ * ne sont jamais supprimées ; une copie .pre-migration.bak est conservée.
  */
 public final class MoneyMigration {
 
@@ -44,26 +44,31 @@ public final class MoneyMigration {
 
     /** Lance l'import. Retourne le nombre de soldes nouvellement importés. */
     public int run() {
-        if (hasTargetData()) {
-            plugin.getLogger().info("[Money] Migration ignorée : " + targetFile.getName()
-                    + " contient déjà des soldes. Aucune donnée existante ne sera écrasée.");
-            return 0;
+        // Charger la cible existante pour fusionner les données manquantes sans
+        // jamais écraser un solde déjà présent dans data/money.yml.
+        YamlConfiguration destination = targetFile.isFile()
+                ? YamlConfiguration.loadConfiguration(targetFile)
+                : new YamlConfiguration();
+
+        ConfigurationSection existingBalances = destination.getConfigurationSection("balances");
+        int existingCount = existingBalances == null ? 0 : existingBalances.getKeys(false).size();
+        if (existingCount > 0) {
+            plugin.getLogger().info("[Money] " + existingCount
+                    + " solde(s) déjà présents dans la nouvelle cible ; ils seront conservés.");
         }
 
-        YamlConfiguration destination = new YamlConfiguration();
         int totalImported = 0;
         int sourcesUsed = 0;
 
-        // Priorité à l'API MainAPI active : elle lit aussi bien le YAML que MySQL.
-        // C'est important lorsque storage.type=MYSQL et qu'aucun money.yml local n'existe.
-        Map<UUID, Double> liveMainApiBalances = readMainApiDataStore();
-        int importedFromMainApi = 0;
-        for (Map.Entry<UUID, Double> entry : liveMainApiBalances.entrySet()) {
-            String path = "balances." + entry.getKey();
-            if (destination.contains(path)) continue;
-            destination.set(path, entry.getValue());
-            importedFromMainApi++;
+        File previousFireBallWandFile = new File(plugin.getDataFolder(), "money-data.yml");
+        int importedFromPreviousFile = importYamlSource(previousFireBallWandFile, destination);
+        if (importedFromPreviousFile > 0) {
+            totalImported += importedFromPreviousFile;
+            sourcesUsed++;
         }
+
+        Map<UUID, Double> liveMainApiBalances = readMainApiDataStore();
+        int importedFromMainApi = mergeMissingBalances(destination, liveMainApiBalances);
         if (importedFromMainApi > 0) {
             totalImported += importedFromMainApi;
             sourcesUsed++;
@@ -76,7 +81,6 @@ public final class MoneyMigration {
 
             Map<UUID, Double> balances;
             List<File> filesToBackup = new ArrayList<>();
-
             try {
                 if (source.isDirectory()) {
                     balances = readEssentialsDirectory(source, filesToBackup);
@@ -98,16 +102,7 @@ public final class MoneyMigration {
             }
 
             backup(filesToBackup);
-
-            int importedFromSource = 0;
-            for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
-                String path = "balances." + entry.getKey();
-                // La première source valide rencontrée garde la priorité.
-                if (destination.contains(path)) continue;
-                destination.set(path, entry.getValue());
-                importedFromSource++;
-            }
-
+            int importedFromSource = mergeMissingBalances(destination, balances);
             if (importedFromSource > 0) {
                 sourcesUsed++;
                 totalImported += importedFromSource;
@@ -115,12 +110,13 @@ public final class MoneyMigration {
                         + " solde(s) importé(s) depuis " + source.getPath());
             } else {
                 plugin.getLogger().info("[Money] Aucun nouveau solde depuis " + source.getPath()
-                        + " (UUID déjà importés depuis une source prioritaire).");
+                        + " (UUID déjà présents dans la cible ou une source prioritaire).");
             }
         }
 
         if (totalImported == 0) {
-            plugin.getLogger().info("[Money] Migration : aucune ancienne donnée valide détectée.");
+            plugin.getLogger().info("[Money] Migration : aucun nouveau solde à importer. Cible : "
+                    + targetFile.getPath());
             return 0;
         }
 
@@ -138,6 +134,42 @@ public final class MoneyMigration {
         return totalImported;
     }
 
+    /** Importe un fichier YAML sans remplacer les UUID déjà présents dans la cible. */
+    private int importYamlSource(File source, YamlConfiguration destination) {
+        if (source == null || !source.isFile()) return 0;
+        try {
+            Map<UUID, Double> balances = readYamlFile(source);
+            if (balances.isEmpty()) {
+                plugin.getLogger().info("[Money] Ancien fichier FireBallWand absent de soldes valides : "
+                        + source.getPath());
+                return 0;
+            }
+            backup(List.of(source));
+            int imported = mergeMissingBalances(destination, balances);
+            plugin.getLogger().info("[Money] Ancien fichier FireBallWand : " + imported + "/"
+                    + balances.size() + " solde(s) importé(s) depuis " + source.getPath() + ".");
+            return imported;
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.WARNING,
+                    "[Money] Impossible de lire l'ancien fichier FireBallWand " + source.getPath(), ex);
+            return 0;
+        }
+    }
+
+    /** Ajoute uniquement les UUID absents ; les valeurs de la cible sont prioritaires. */
+    private int mergeMissingBalances(YamlConfiguration destination, Map<UUID, Double> balances) {
+        int imported = 0;
+        for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
+            String path = "balances." + entry.getKey();
+            Double amount = validAmount(entry.getValue());
+            if (amount == null) continue;
+
+            if (validAmount(destination.get(path)) != null) continue;
+            destination.set(path, amount);
+            imported++;
+        }
+        return imported;
+    }
 
     /**
      * Lit MainAPI par réflexion pour ne pas ajouter une dépendance de compilation.
@@ -184,19 +216,6 @@ public final class MoneyMigration {
                             + "avant MoneyModule.enable() ; les imports par fichiers vont continuer.", ex);
         }
         return result;
-    }
-
-    private boolean hasTargetData() {
-        if (!targetFile.isFile()) return false;
-        try {
-            YamlConfiguration cfg = YamlConfiguration.loadConfiguration(targetFile);
-            ConfigurationSection balances = cfg.getConfigurationSection("balances");
-            return balances != null && !balances.getKeys(false).isEmpty();
-        } catch (Exception ex) {
-            plugin.getLogger().warning("[Money] Impossible de vérifier la cible de migration : "
-                    + ex.getMessage() + ". Par sécurité, aucune importation ne sera faite.");
-            return true;
-        }
     }
 
     private List<File> candidates() {

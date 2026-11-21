@@ -8,9 +8,10 @@
 # Pour désactiver complètement le module, édite config.yml → modules.money.enabled.
 
 # Mode d'économie :
-#   auto      → utilise Vault si un provider existe, sinon interne (recommandé)
-#   internal  → force l'économie interne (s'enregistre comme provider Vault si dispo)
-#   vault     → force la délégation Vault (fallback interne + warning si absent)
+#   auto      → conserve les soldes FireBallWand et publie l'économie via Vault si Vault est installé.
+#               Un provider externe existant n'est pas utilisé automatiquement afin de préserver les soldes migrés.
+#   internal  → force l'économie interne et la publie via Vault si Vault est installé.
+#   vault     → délègue à un provider Vault externe s'il existe ; sinon, fallback sur l'économie interne.
 mode: auto
 
 economy:

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Stockage YAML : money-data.yml, chargé une fois en mémoire. */
+/** Stockage YAML : data/money.yml, chargé une fois en mémoire. */
 public class YamlMoneyStorage implements MoneyStorage {
 
     private final JavaPlugin plugin;
@@ -20,23 +20,33 @@ public class YamlMoneyStorage implements MoneyStorage {
 
     public YamlMoneyStorage(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "money-data.yml");
+        this.file = new File(new File(plugin.getDataFolder(), "data"), "money.yml");
     }
 
     @Override
     public synchronized void load() {
-        File folder = plugin.getDataFolder();
-        if (!folder.exists() && !folder.mkdirs() && !folder.isDirectory()) {
+        File folder = file.getParentFile();
+        if (folder != null && !folder.exists() && !folder.mkdirs() && !folder.isDirectory()) {
             plugin.getLogger().severe("[Money] Impossible de créer le dossier " + folder.getPath());
             return;
         }
 
         // La migration doit impérativement finir avant le chargement du cache.
+        // Elle récupère notamment l'ancien plugins/FireBallWand/money-data.yml.
         new MoneyMigration(plugin, file).run();
 
         data.clear();
         dirty = false;
-        if (!file.isFile()) return;
+        if (!file.isFile()) {
+            // Crée le fichier au nouvel emplacement dès le premier démarrage.
+            try {
+                new YamlConfiguration().save(file);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("[Money] Impossible de créer " + file.getPath()
+                        + " : " + ex.getMessage());
+            }
+            if (!file.isFile()) return;
+        }
 
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection section = yml.getConfigurationSection("balances");
@@ -62,7 +72,7 @@ public class YamlMoneyStorage implements MoneyStorage {
             }
         }
 
-        plugin.getLogger().info("[Money] " + data.size() + " solde(s) chargé(s) depuis " + file.getName()
+        plugin.getLogger().info("[Money] " + data.size() + " solde(s) chargé(s) depuis " + file.getPath()
                 + (skipped > 0 ? " ; " + skipped + " entrée(s) invalide(s) ignorée(s)." : "."));
     }
 

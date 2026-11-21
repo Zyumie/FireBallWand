@@ -21,11 +21,11 @@ public class JoinQuitListener implements Listener {
     private enum Mode { DEFAULT, CUSTOM, HIDDEN }
 
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
-            .character('§').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+            .character('\u00a7').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
     private final Main plugin;
 
-    // Cache thread-safe pour stocker les préfixes/suffixes et éviter les requêtes bloquantes au quit
+    // Cache les valeurs LuckPerms pour qu'elles restent disponibles pendant PlayerQuitEvent.
     private final Map<UUID, String> prefixCache = new ConcurrentHashMap<>();
     private final Map<UUID, String> suffixCache = new ConcurrentHashMap<>();
 
@@ -40,13 +40,11 @@ public class JoinQuitListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-
-        // Met en cache les données LuckPerms et ItemsAdder dès la connexion
         cachePlayerPrefixSuffix(player);
 
         if (!player.hasPlayedBefore() && cfg().getBoolean("join-quit.join.first-join.enabled", true)) {
             String raw = cfg().getString("join-quit.join.first-join.message",
-                    "&d✦ &f%player% &7rejoint le serveur pour la première fois !");
+                    "&d\u2726 &f%player% &7rejoint le serveur pour la premi\u00e8re fois !");
             event.joinMessage(formatCached(raw, player));
             return;
         }
@@ -66,11 +64,10 @@ public class JoinQuitListener implements Listener {
         switch (mode("join-quit.quit.mode")) {
             case HIDDEN -> event.quitMessage(null);
             case CUSTOM -> event.quitMessage(formatCached(cfg().getString("join-quit.quit.message",
-                    "&8[&c-&8] &f%prefix%%player%%suffix% &7a quitté le serveur"), player));
+                    "&8[&c-&8] &f%prefix%%player%%suffix% &7a quitt\u00e9 le serveur"), player));
             case DEFAULT -> { }
         }
 
-        // Nettoie le cache pour libérer la mémoire
         prefixCache.remove(player.getUniqueId());
         suffixCache.remove(player.getUniqueId());
     }
@@ -82,13 +79,6 @@ public class JoinQuitListener implements Listener {
         if (plugin.getLuckPermsHook() != null) {
             prefix = plugin.getLuckPermsHook().getPrefix(player);
             suffix = plugin.getLuckPermsHook().getSuffix(player);
-        }
-
-        if (plugin.getItemsAdderHook() != null
-                && plugin.getItemsAdderHook().isAvailable()
-                && cfg().getBoolean("chat.itemsadder.enabled", true)) {
-            prefix = plugin.getItemsAdderHook().replaceFontImages(prefix);
-            suffix = plugin.getItemsAdderHook().replaceFontImages(suffix);
         }
 
         prefixCache.put(player.getUniqueId(), prefix);
@@ -104,6 +94,17 @@ public class JoinQuitListener implements Listener {
         }
     }
 
+    /** Applique PlaceholderAPI selon le même réglage que le format du chat. */
+    private String papi(Player player, String text) {
+        if (text == null) return "";
+        if (plugin.getPlaceholderAPIHook() == null
+                || !plugin.getPlaceholderAPIHook().isAvailable()
+                || !cfg().getBoolean("chat.placeholderapi.enabled", true)) {
+            return text;
+        }
+        return plugin.getPlaceholderAPIHook().parse(player, text);
+    }
+
     private Component formatCached(String raw, Player player) {
         String prefix = prefixCache.getOrDefault(player.getUniqueId(), "");
         String suffix = suffixCache.getOrDefault(player.getUniqueId(), "");
@@ -112,6 +113,14 @@ public class JoinQuitListener implements Listener {
                 .replace("%player%", player.getName())
                 .replace("%prefix%", prefix)
                 .replace("%suffix%", suffix);
+
+        text = papi(player, text);
+
+        if (plugin.getItemsAdderHook() != null
+                && plugin.getItemsAdderHook().isAvailable()
+                && cfg().getBoolean("chat.itemsadder.enabled", true)) {
+            text = plugin.getItemsAdderHook().replaceFontImages(text);
+        }
 
         return LEGACY.deserialize(ChatManager.colorize(text));
     }
