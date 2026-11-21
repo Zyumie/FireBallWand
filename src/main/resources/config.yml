@@ -7,6 +7,15 @@
 #
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Activation des différents Modules
+#  Ex: Money pour le moment xDD
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+modules:
+  money:
+    enabled: true
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  MESSAGE DE BIENVENUE
 #  Affiché uniquement à la première connexion du joueur.
 #  Codes couleur : &a &c &f etc. + codes HEX &#RRGGBB

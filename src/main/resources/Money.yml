@@ -1,0 +1,52 @@
+#
+#          ╔══════════════════════════════════════════════╗
+#          ║         FireBallWand - Money.yml             ║
+#          ║                by Zyumie                     ║
+#          ╚══════════════════════════════════════════════╝
+#
+# ⚠️ Ce fichier est INDÉPENDANT du config.yml principal.
+# Pour désactiver complètement le module, édite config.yml → modules.money.enabled.
+
+# Mode d'économie :
+#   auto      → utilise Vault si un provider existe, sinon interne (recommandé)
+#   internal  → force l'économie interne (s'enregistre comme provider Vault si dispo)
+#   vault     → force la délégation Vault (fallback interne + warning si absent)
+mode: auto
+
+economy:
+  # Nom de la devise (singulier / pluriel)
+  currency-singular: "Crédit"
+  currency-plural: "Crédits"
+  # Solde de départ pour un nouveau joueur
+  starting-balance: 500.0
+  # Montant minimum par transaction (/pay)
+  min-transaction: 0.5
+  # Montant maximum qu'un joueur peut détenir
+  max-balance: 999999999.0
+
+# Classement
+moneytop:
+  entries-per-page: 10
+  # Durée (secondes) pendant laquelle le classement est mis en cache
+  # avant de rescanner tous les joueurs sur disque. 0 = cache désactivé.
+  cache-seconds: 30
+
+messages:
+  prefix: "<dark_gray>[<gold>Money<dark_gray>] <gray>"
+  balance: "<gray>Ton solde: <yellow>{amount} {currency}"
+  balance-other: "<gray>Solde de <yellow>{player}<gray>: <yellow>{amount} {currency}"
+  pay-success: "<green>Tu as payé <yellow>{amount} {currency} <green>à <yellow>{player}<green>."
+  pay-received: "<yellow>{player} <green>t'a envoyé <yellow>{amount} {currency}<green>."
+  pay-self: "<red>Tu ne peux pas te payer toi-même."
+  pay-insufficient: "<red>Solde insuffisant. Tu as <yellow>{balance} {currency}<red>."
+  pay-min: "<red>Montant minimum: <yellow>{min} {currency}<red>."
+  pay-max-balance: "<red>Ce paiement dépasserait la limite de solde de <yellow>{max} {currency}<red>."
+  eco-give: "<green>+{amount} {currency} <gray>donnés à <yellow>{player}<gray>."
+  eco-take: "<red>-{amount} {currency} <gray>retirés à <yellow>{player}<gray>."
+  eco-set: "<gray>Solde de <yellow>{player} <gray>fixé à <yellow>{amount} {currency}<gray>."
+  player-not-found: "<red>Joueur introuvable: <yellow>{player}"
+  invalid-amount: "<red>Montant invalide."
+  no-permission: "<red>Tu n'as pas la permission."
+  reload-success: "<green>Configuration Money rechargée."
+  moneytop-header: "<dark_gray>─── <gold>Classement des richesses <dark_gray>(page {page}/{max}) ───"
+  moneytop-entry: "  <gray>{rank}. <yellow>{player} <gray>— <yellow>{amount} {currency}"

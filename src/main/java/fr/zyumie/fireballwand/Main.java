@@ -44,6 +44,7 @@ import fr.zyumie.TPA.Listener.TpaManager;
 import fr.zyumie.TPA.Listener.TpaTeleportManager;
 import fr.zyumie.TPA.Listener.TpaInvincibilityManager;
 import fr.zyumie.TPA.Listener.TpaListener;
+import fr.zyumie.Money.MoneyModule;
 
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -65,6 +66,7 @@ public class Main extends JavaPlugin {
     private WarmupService    warmupService;
     private HomeManager      homeManager;
     private SpawnManager     spawnManager;
+    private MoneyModule      moneyModule;
 
     private TpaConfigManager tpaConfigManager;
     private TpaManager tpaManager;
@@ -75,6 +77,10 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         // Config Manager personnalisé (Gère config.yml, Vanish.yml, CustomCheat.yml)
         customConfigManager = new ConfigManager(this);
+
+        // Money Module
+        moneyModule = new MoneyModule(this);
+        moneyModule.enable();
 
         // Config du package Staff (Staff.yml)
         staffConfig = new StaffConfig(this);
@@ -306,6 +312,7 @@ public class Main extends JavaPlugin {
         if (vanishManager != null) vanishManager.clear();
         if (tpaTeleportManager != null) tpaTeleportManager.cancelAll();
         if (tpaInvincibilityManager != null) tpaInvincibilityManager.clearAll();
+        if (moneyModule != null) moneyModule.disable();
 
         getLogger().info("════════════════════════════════════");
         getLogger().info("🔥 FireBallWand désactivé... :(");
@@ -346,6 +353,7 @@ public class Main extends JavaPlugin {
         customConfigManager.reload();
         staffConfig.reload();
         tpaConfigManager.loadConfig();
+        if (moneyModule != null) moneyModule.reload();
     }
 
     public FileConfiguration getVanishConfig() {
@@ -372,6 +380,7 @@ public class Main extends JavaPlugin {
     public TpaManager              getTpaManager()             { return tpaManager; }
     public TpaTeleportManager      getTpaTeleportManager()     { return tpaTeleportManager; }
     public TpaInvincibilityManager getTpaInvincibilityManager() { return tpaInvincibilityManager; }
+    public MoneyModule             getMoneyModule()             { return moneyModule; }
 
     // ── Startup log ──────────────────────────────────────────────────────────
 

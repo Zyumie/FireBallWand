@@ -3,7 +3,7 @@ main: fr.zyumie.fireballwand.Main
 version: ${version}
 api-version: '1.21'
 author: Zyumie
-softdepend: [LuckPerms, ItemsAdder, PlaceholderAPI, TAB]
+softdepend: [LuckPerms, ItemsAdder, PlaceholderAPI, TAB, Vault]
 
 commands:
 
@@ -175,6 +175,31 @@ commands:
     description: Recharger la configuration du TPA.
     usage: /tpareload
     permission: fireballwand.tpa.admin
+
+  # ── Money ──────────────────────────────────────────────────────────────────
+  money:
+    description: Voir ton solde (ou celui d'un joueur)
+    usage: /money [joueur]
+    aliases: [balance, bal]
+    permission: fireballwand.money.use
+
+  pay:
+    description: Payer un joueur
+    usage: /pay <joueur> <montant>
+    permission: fireballwand.money.pay
+
+  moneytop:
+    description: Classement des joueurs les plus riches
+    usage: /moneytop [page]
+    aliases: [baltop]
+    permission: fireballwand.money.top
+
+  eco:
+    description: Commandes administrateur d'économie
+    usage: /eco <give|set|take> <joueur> <montant>
+    permission: fireballwand.money.admin
+
+  # ── Permissions ──────────────────────────────────────────────────────────────
 
 permissions:
 
@@ -395,6 +420,23 @@ permissions:
   fireballwand.reply:
     description: Répondre au dernier message privé
     default: true
+
+  # ── Money ──────────────────────────────────────────────────────────────────
+  fireballwand.money.use:
+    description: Voir son solde
+    default: true
+
+  fireballwand.money.pay:
+    description: Payer un joueur
+    default: true
+
+  fireballwand.money.top:
+    description: Voir le classement
+    default: true
+
+  fireballwand.money.admin:
+    description: Administrer l'économie (/eco, /money reload)
+    default: op
 
   # ── Vanish ─────────────────────────────────────────────────────────────────
   fireballwand.vanish:
