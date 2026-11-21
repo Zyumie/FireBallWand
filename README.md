@@ -214,7 +214,7 @@ Aliases: `/balance` and `/bal` for `/money`; `/baltop` for `/moneytop`.
 
 ### Storage & Vault
 
-- The default `internal` mode stores balances by player UUID in `plugins/FireBallWand/money-data.yml`.
+- The default `internal` mode stores balances by player UUID in `plugins/FireBallWand/data/money.yml`.
 - `Money.yml` controls the economy mode, currency names, starting balance, transaction limits, leaderboard pagination/cache and messages.
 - When Vault is installed and the internal economy is active, FireBallWand registers its own Vault Economy provider. Other Vault-compatible plugins can then use the same FireBallWand balances.
 - Set `mode: vault` in `Money.yml` to delegate balance operations to an external Vault Economy provider. If no external provider is found, FireBallWand falls back to its internal economy.
@@ -230,12 +230,14 @@ The Money module can import data from the following sources:
 - Essentials / EssentialsX `userdata/<UUID>.yml` files.
 - A manually supplied `plugins/FireBallWand/migration-source.yml` file using one of the supported legacy YAML formats.
 
-Imported balances are stored in `plugins/FireBallWand/money-data.yml` and matched by UUID. Multiple sources can be combined; balances already imported from a higher-priority source are kept.
+Imported balances are stored in `plugins/FireBallWand/data/money.yml` and matched by UUID. The previous FireBallWand root-level file is imported first, followed by MainAPI and the other supported sources. Multiple sources can be combined; valid balances already present in the new target always take priority.
 
 **Migration safety:**
 
-- If `money-data.yml` already contains balances, automatic migration is skipped to protect existing data.
-- YAML source files are not deleted. A `.pre-migration.bak` backup is created before importing a YAML source.
+- Existing installations are automatically migrated from the old root-level `plugins/FireBallWand/money-data.yml` file into `plugins/FireBallWand/data/money.yml`.
+- A `money-data.yml.pre-migration.bak` backup is created beside the old file; the original is retained and is not automatically deleted.
+- Valid balances already present in `data/money.yml` are never overwritten. Missing UUIDs can be merged from legacy sources, including when the destination is partially populated.
+- Other YAML source files are not deleted. A `.pre-migration.bak` backup is created before importing a YAML source.
 - MainAPI DataStore imports require the old API and DataStore to be initialized and accessible to FireBallWand before the Money module starts.
 - If no new `Money.yml` exists yet, compatible legacy settings in `plugins/Main/money/config.yml` (or matching MainPlugin folder names) are copied into the new configuration.
 - Back up the complete `plugins/` directory before the first migration and verify balances in-game before removing old data or plugins.
