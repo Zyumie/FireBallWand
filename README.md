@@ -22,7 +22,7 @@
 
 Whether you're managing a Survival server, a private SMP or an event-based community, FireBallWand provides the tools needed to manage your players, moderate discreetly and customize your gameplay experience.
 
-From an advanced **Vanish system** and **Staff Mode** to **homes**, a **spawn**, teleportation requests, private messaging and powerful custom items, every feature is designed to be configurable and easy to use.
+From an advanced **Vanish system** and **Staff Mode** to **homes**, a **spawn**, teleportation requests, private messaging, a built-in **economy module** and powerful custom items, every feature is designed to be configurable and easy to use.
 
 ### ✨ Main Highlights
 
@@ -33,6 +33,7 @@ From an advanced **Vanish system** and **Staff Mode** to **homes**, a **spawn**,
 - 💥 Custom weapons, armor and fun items.
 - 💬 Chat formatting, private messaging and custom join/leave messages.
 - 🧭 Interactive teleportation request system.
+- 💰 Built-in economy with payments, balance management, a leaderboard and Vault integration.
 - 🎒 Automatic and configurable Starter Kit.
 - 📂 Separate YAML configuration files for each module.
 - 🔌 Optional integrations with popular plugins.
@@ -169,8 +170,9 @@ All settings and messages are managed through `Spawn.yml`.
 - Standard Minecraft color codes using `&`.
 - Hexadecimal colors using `&#RRGGBB`.
 - Rank prefixes and suffixes through LuckPerms.
-- ItemsAdder glyph support for custom rank icons.
-- PlaceholderAPI support in chat formats and welcome messages.
+- ItemsAdder glyph support for custom rank icons in chat and custom join/leave messages.
+- PlaceholderAPI support in chat formatting and custom join/leave messages.
+- In join/leave messages, PlaceholderAPI is parsed before ItemsAdder font images so prefixes using `%img_<name>%` and `:namespace:icon:` can be resolved.
 
 ### Private messaging
 
@@ -182,6 +184,73 @@ All settings and messages are managed through `Spawn.yml`.
 - Configurable first-join welcome message.
 - Customizable join and leave messages: keep the vanilla ones, use your own text (with prefix and suffix placeholders) or hide them.
 - A dedicated message for brand-new players.
+- Optional LuckPerms prefix/suffix formatting with PlaceholderAPI and ItemsAdder glyph conversion.
+
+---
+
+## 💰 Economy & Money Module
+
+FireBallWand includes a built-in economy module for player balances, transactions and server-wide economy integration.
+
+### Player commands
+
+| Command | Description | Permission |
+|:---|:---|:---|
+| `/money` | Display your balance | `fireballwand.money.use` |
+| `/money <player>` | Display a cached player's balance | `fireballwand.money.use` |
+| `/pay <player> <amount>` | Send money to an online player | `fireballwand.money.pay` |
+| `/moneytop [page]` | Display the richest players | `fireballwand.money.top` |
+
+Aliases: `/balance` and `/bal` for `/money`; `/baltop` for `/moneytop`.
+
+### Administration
+
+| Command | Description | Permission |
+|:---|:---|:---|
+| `/eco give <player> <amount>` | Add money to a player's balance | `fireballwand.money.admin` |
+| `/eco take <player> <amount>` | Remove money from a player's balance | `fireballwand.money.admin` |
+| `/eco set <player> <amount>` | Set a player's balance | `fireballwand.money.admin` |
+| `/money reload` | Reload `Money.yml` | `fireballwand.money.admin` |
+
+### Storage & Vault
+
+- The default `internal` mode stores balances by player UUID in `plugins/FireBallWand/data/money.yml`.
+- `Money.yml` controls the economy mode, currency names, starting balance, transaction limits, leaderboard pagination/cache and messages.
+- When Vault is installed and the internal economy is active, FireBallWand registers its own Vault Economy provider. Other Vault-compatible plugins can then use the same FireBallWand balances.
+- Set `mode: vault` in `Money.yml` to delegate balance operations to an external Vault Economy provider. If no external provider is found, FireBallWand falls back to its internal economy.
+- `mode: auto` keeps the internal FireBallWand balances rather than silently switching to an external provider.
+
+### Legacy balance migration
+
+The Money module can import data from the following sources:
+
+- The previous MainAPI DataStore, including YAML or MySQL when the old `MainAPI` and its DataStore are available at module startup.
+- Legacy `Main` / `MainPlugin` YAML data files.
+- The old standalone `Money` plugin YAML files.
+- Essentials / EssentialsX `userdata/<UUID>.yml` files.
+- A manually supplied `plugins/FireBallWand/migration-source.yml` file using one of the supported legacy YAML formats.
+
+Imported balances are stored in `plugins/FireBallWand/data/money.yml` and matched by UUID. The previous FireBallWand root-level file is imported first, followed by MainAPI and the other supported sources. Multiple sources can be combined; valid balances already present in the new target always take priority.
+
+**Migration safety:**
+
+- Existing installations are automatically migrated from the old root-level `plugins/FireBallWand/money-data.yml` file into `plugins/FireBallWand/data/money.yml`.
+- A `money-data.yml.pre-migration.bak` backup is created beside the old file; the original is retained and is not automatically deleted.
+- Valid balances already present in `data/money.yml` are never overwritten. Missing UUIDs can be merged from legacy sources, including when the destination is partially populated.
+- Other YAML source files are not deleted. A `.pre-migration.bak` backup is created before importing a YAML source.
+- MainAPI DataStore imports require the old API and DataStore to be initialized and accessible to FireBallWand before the Money module starts.
+- If no new `Money.yml` exists yet, compatible legacy settings in `plugins/Main/money/config.yml` (or matching MainPlugin folder names) are copied into the new configuration.
+- Back up the complete `plugins/` directory before the first migration and verify balances in-game before removing old data or plugins.
+
+Enable or disable the module in `config.yml`:
+
+```yaml
+modules:
+  money:
+    enabled: true
+```
+
+Economy settings are stored separately in `Money.yml`.
 
 ---
 
@@ -271,7 +340,8 @@ Each feature has its own dedicated configuration file, making customization and 
 
 | Configuration file | Purpose |
 |:---|:---|
-| `config.yml` | General settings, chat, private messages and join/leave messages |
+| `config.yml` | General settings, module toggles, chat, private messages and join/leave messages |
+| `Money.yml` | Economy mode, currency names, starting balance, transaction limits, messages and leaderboard settings |
 | `Staff.yml` | Staff Mode, protections, moderation items, God Mode and Fly |
 | `Vanish.yml` | Vanish hierarchy, visibility and messages |
 | `Home.yml` | Homes: limits, delay, cooldown and messages |
@@ -290,6 +360,8 @@ Messages in `Home.yml` and `Spawn.yml` accept both MiniMessage and `&` color cod
 
 Permission: `fireballwand.admin`
 
+`/fw reload` reloads the Money module as part of the plugin's global reload process. `/money reload` reloads only `Money.yml`.
+
 ---
 
 ## 🔌 Optional Integrations
@@ -301,11 +373,12 @@ The following integrations can unlock additional functionality:
 | Plugin | Integration |
 |:---|:---|
 | [LuckPerms](https://luckperms.net/) | Rank prefixes, suffixes and permissions |
-| [ItemsAdder](https://itemsadder.com/) | Custom glyphs in chat |
-| [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) | Placeholder support |
+| [ItemsAdder](https://itemsadder.com/) | Custom glyphs in chat and join/leave messages |
+| [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) | Placeholder support in chat and custom messages |
 | [TAB](https://modrinth.com/plugin/tab-was-taken) | Vanish compatibility with the tab list |
+| [Vault](https://www.spigotmc.org/resources/vault.34315/) | Economy API bridge for plugins using FireBallWand's internal balances |
 
-All integrations are optional.
+All integrations are optional. Vault integration requires Vault to be installed; the Money module's internal economy itself does not require an external economy plugin.
 
 ---
 
@@ -326,11 +399,13 @@ All integrations are optional.
 5. The plugin will generate its configuration files automatically.
 6. Customize the YAML files according to your needs.
 
-**Optional:** Install LuckPerms, ItemsAdder, PlaceholderAPI and/or TAB to enable their respective integrations.
+**Optional:** Install LuckPerms, ItemsAdder, PlaceholderAPI, TAB and/or Vault to enable their respective integrations.
 
 > **Using TAB?** Assign the `tab.seevanished` permission to staff members who should be able to see vanished players in the tab list.
 
 > **Coming from the old Home or NewSpawn plugins?** Your homes and spawn are imported on the first start. Remove the old plugins afterwards to avoid duplicate commands.
+
+> **Coming from an older economy setup?** Make a full backup of `plugins/` first. Keep the old economy source files until you have confirmed that the migrated balances are correct. The Money module imports balances during startup when a supported source is available.
 
 ---
 
@@ -353,7 +428,7 @@ All integrations are optional.
 
 | Command | Description | Permission |
 |:---|:---|:---|
-| `/home [name\|list]` | Teleport to a home or open the menu | `fireballwand.home.use` |
+| `/home [name|list]` | Teleport to a home or open the menu | `fireballwand.home.use` |
 | `/sethome [name]` | Set a home at your position | `fireballwand.home.set` |
 | `/delhome [name]` | Delete one of your homes | `fireballwand.home.delete` |
 | `/spawn` | Teleport to the spawn | `fireballwand.spawn.use` |
@@ -373,6 +448,19 @@ Everyone can use these commands by default. The number of homes is controlled by
 | `/tpacancel` | Cancel a request | `fireballwand.tpa` |
 | `/msg <player>` | Send a private message | `fireballwand.msg` |
 | `/reply` | Reply to a private message | `fireballwand.reply` |
+
+### Economy
+
+| Command | Description | Permission |
+|:---|:---|:---|
+| `/money` / `/balance` / `/bal` | View your balance | `fireballwand.money.use` |
+| `/money <player>` | View another cached player's balance | `fireballwand.money.use` |
+| `/pay <player> <amount>` | Pay an online player | `fireballwand.money.pay` |
+| `/moneytop [page]` / `/baltop` | View the richest players | `fireballwand.money.top` |
+| `/eco give <player> <amount>` | Add money | `fireballwand.money.admin` |
+| `/eco take <player> <amount>` | Remove money | `fireballwand.money.admin` |
+| `/eco set <player> <amount>` | Set a balance | `fireballwand.money.admin` |
+| `/money reload` | Reload `Money.yml` | `fireballwand.money.admin` |
 
 ### Custom Items
 
@@ -411,6 +499,10 @@ Everyone can use these commands by default. The number of homes is controlled by
 | `fireballwand.negativesnowball.bypass` | Immunity to the Cursed Snowball |
 | `fireballwand.swordup.bypass` | Immunity to the Sword Up |
 | `fireballwand.chat.color` / `.chat.color.hex` | Use `&` colors / hex colors in chat |
+| `fireballwand.money.use` | View balances (default: true) |
+| `fireballwand.money.pay` | Pay another player (default: true) |
+| `fireballwand.money.top` | View the economy leaderboard (default: true) |
+| `fireballwand.money.admin` | Manage balances and reload `Money.yml` (default: op) |
 
 ---
 
@@ -447,7 +539,6 @@ Clear reports make troubleshooting easier.
 All rights reserved. Unauthorized copying, modification, redistribution or use of this software is prohibited without prior permission from the author.
 
 ---
-
 
 <div align="center">
 
